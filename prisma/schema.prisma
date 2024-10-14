@@ -22,45 +22,79 @@ enum Access_level {
   MANAGE
 }
 
-model User {
-  id          String       @id @default(uuid())
-  name        String
-  email       String       @unique
-  password    String
-  role        Role         @default(CASE_MANAGER)
-  cases       Case[]  
-  case_access Case_access[]
-  created_at  DateTime    @default(now())
-  updated_at  DateTime    @updatedAt
+enum Region {
+  WINDSOR
+  LEAMINGTON
+  HARROW
+  AMHERSTBURG
+  TILBURY
+  CHATHAM
 }
 
-model Client {
-  id              String        @id @default(uuid())
-  first_name      String
-  last_name       String
-  dob             DateTime
-  email           String        @unique
-  phone           String
-  address         String
-  cases           Case[]
-  referral_date   DateTime
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+enum Status {
+  OPEN
+  ONGOING
+  CLOSED
+}
+
+model User {
+  id          String        @id @default(uuid())
+  name        String
+  email       String        @unique
+  password    String
+  role        Role          @default(CASE_MANAGER)
+  cases       Case[]  
+  case_access Case_access[]
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @updatedAt
+}
+
+model Client {  
+  id                String        @id @default(uuid())
+  first_name        String
+  last_name         String
+  dob               DateTime
+  email             String        @unique
+  phone             String
+  address           String
+  region            Region    
+  reference_number  Int
+  referral_date     DateTime
+  cases             Case[]
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+}
+
+model Service {
+  id                      String    @id @default(uuid())
+  name                    String
+  initial_contact_days    Int       // Number of days for the initial contact (e.g., 1 day for IES)
+  intake_interview_days   Int       // Number of days for the intake interview (e.g., 5 days for WSIB)
+  action_plan_weeks       Int       // Number of weeks for the Employment Action Plan (e.g., 2 weeks for IES)
+  monthly_contact         Boolean   // True if monthly contact is required (e.g., for IES)
+  monthly_reports         Boolean   // True if monthly reports are required (e.g., for WSIB)
+  cases                   Case[]
+  created_at              DateTime   @default(now())
+  updated_at              DateTime   @updatedAt
 }
 
 model Case {
   id                String       @id @default(uuid())
   client            Client       @relation(fields: [client_id], references: [id])
   client_id         String          
-  case_manager      User       @relation(fields: [case_manager_id], references: [id])
+  case_manager      User         @relation(fields: [case_manager_id], references: [id])
   case_manager_id   String
-  status            String
-  openedAt          DateTime     @default(now())
-  closedAt          DateTime?
+  service           Service      @relation(fields: [service_id], references: [id])
+  service_id        String
+  region            Region
+  status            Status
+  opened_at         DateTime     @default(now())
+  start_at          DateTime? 
+  closed_at         DateTime?
   tasks             Task[]
   case_access       Case_access[]
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
+  created_at        DateTime     @default(now())
+  updated_at        DateTime     @updatedAt
 }
 
 model Case_access {
@@ -70,8 +104,8 @@ model Case_access {
   case            Case         @relation(fields: [case_id], references: [id])
   case_id         String      
   access_level    Access_level
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  created_at      DateTime   @default(now())
+  updated_at      DateTime   @updatedAt
 }
 
 model Task {
