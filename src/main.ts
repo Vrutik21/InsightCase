@@ -11,6 +11,7 @@ async function bootstrap() {
       'Document for APIs and DTOs with example developed for Insight Advantage (Case Management Tool)',
     )
     .setVersion('1.0')
+    .addBearerAuth()
     .addServer('http://localhost:3000/', 'Local environment')
     .build();
 
