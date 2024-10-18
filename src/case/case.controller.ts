@@ -9,7 +9,7 @@ export class CaseController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard, CaseAccessGuard)
-  async getCaseById(@Param('id') id: string) {
+  getCaseById(@Param('id') id: string) {
     return this.caseService.findCaseById(id);
   }
 }

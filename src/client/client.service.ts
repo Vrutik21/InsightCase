@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateClientDto, UpdateClientDto } from './dto/client.dto';
 import { prismaError } from 'src/shared/error-handling';
@@ -6,6 +6,26 @@ import { prismaError } from 'src/shared/error-handling';
 @Injectable()
 export class ClientService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async getClient(id: string) {
+    try {
+      return await this.prisma.client.findFirst({
+        where: {
+          id,
+        },
+      });
+    } catch (err) {
+      prismaError(err);
+    }
+  }
+
+  async getAllClients() {
+    try {
+      return await this.prisma.client.findMany();
+    } catch (err) {
+      prismaError(err);
+    }
+  }
 
   async createClient(dto: CreateClientDto) {
     try {
@@ -27,7 +47,7 @@ export class ClientService {
     }
   }
 
-  async updateClient(dto: UpdateClientDto, id: string) {
+  async updateClient(id: string, dto: UpdateClientDto) {
     try {
       const existingClient = await this.prisma.client.findFirst({
         where: { email: dto.email },
@@ -52,7 +72,17 @@ export class ClientService {
 
   async deleteClient(id: string) {
     try {
-      return this.prisma.client.delete({
+      const clientCases = await this.prisma.case.findMany({
+        where: {
+          client_id: id,
+        },
+      });
+
+      if (clientCases.some((item) => item.status !== 'CLOSED')) {
+        throw new ForbiddenException("One or more of the clien't case(s) are still in progress");
+      }
+
+      return await this.prisma.client.delete({
         where: { id },
       });
     } catch (err) {
