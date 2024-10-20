@@ -2,13 +2,16 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@n
 import { ClientService } from './client.service';
 import { JwtAuthGuard } from 'src/shared/guards/auth.guard';
 import { CreateClientDto, UpdateClientDto } from './dto/client.dto';
+import { RolesGuard } from 'src/shared/guards/role.guard';
+import { Roles } from 'src/shared/decorators/roles.decorator';
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('client')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   @Get()
+  @Roles('ADMIN', 'MANAGER')
   getAllClients() {
     return this.clientService.getAllClients();
   }
