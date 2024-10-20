@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsEmail, IsDateString, IsEnum, IsInt, IsOptional } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsDateString,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsNumberString,
+} from 'class-validator';
 import { Region } from '@prisma/client';
 
 export class CreateClientDto {
@@ -36,11 +44,11 @@ export class CreateClientDto {
   email: string;
 
   @ApiProperty({
-    example: '+1-234-567-8901',
+    example: '2345678901',
     required: true,
     description: 'The phone number of the client',
   })
-  @IsString()
+  @IsNumberString()
   phone: string;
 
   @ApiProperty({

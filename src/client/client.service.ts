@@ -29,6 +29,10 @@ export class ClientService {
 
   async createClient(dto: CreateClientDto) {
     try {
+      const { dob: _dob, referral_date: _referral_date, ...otherData } = dto;
+      const dob = new Date(dto.dob).toISOString();
+      const referral_date = new Date(dto.referral_date).toISOString();
+
       const existingClient = await this.prisma.client.findFirst({
         where: { email: dto.email },
       });
@@ -39,7 +43,9 @@ export class ClientService {
 
       return await this.prisma.client.create({
         data: {
-          ...dto,
+          dob,
+          referral_date,
+          ...otherData,
         },
       });
     } catch (err) {
@@ -49,20 +55,25 @@ export class ClientService {
 
   async updateClient(id: string, dto: UpdateClientDto) {
     try {
+      const { dob: _dob, referral_date: _referral_date, ...otherData } = dto;
+      const dob = new Date(dto.dob).toISOString();
+      const referral_date = new Date(dto.referral_date).toISOString();
       const existingClient = await this.prisma.client.findFirst({
-        where: { email: dto.email },
+        where: { email: dto.email, NOT: { id } },
       });
 
       if (existingClient) {
         throw new ConflictException('Client with the same email already exists!');
       }
 
-      return this.prisma.client.update({
+      return await this.prisma.client.update({
         where: {
           id,
         },
         data: {
-          ...dto,
+          dob,
+          referral_date,
+          ...otherData,
         },
       });
     } catch (err) {

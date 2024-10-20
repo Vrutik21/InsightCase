@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Access_level } from '@prisma/client';
+import { Access_level, Status } from '@prisma/client';
 import { CreateCaseDto } from './dto/case.dto';
 import { prismaError } from 'src/shared/error-handling';
 
@@ -36,17 +36,63 @@ export class CaseService {
 
   async createCase(dto: CreateCaseDto) {
     try {
-      const { client_id, case_manager_id, service_id, start_at, region, status } = dto;
-      return this.prisma.case.create({
+      const { client_id, case_manager_id, service_id, start_at, region, status, staff_id } = dto;
+
+      const service = await this.prisma.service.findUnique({
+        where: { id: dto.service_id },
+      });
+
+      if (!service) {
+        new NotFoundException('Service does not exist!');
+      }
+
+      const newCase = await this.prisma.case.create({
         data: {
           client_id,
           case_manager_id,
+          staff_id,
           service_id,
-          start_at,
+          start_at: new Date(start_at).toISOString(),
           region,
-          status,
+          status: status || Status.OPEN,
         },
       });
+
+      if (service) {
+        const tasks = [];
+
+        if (service.initial_contact_days) {
+          tasks.push({
+            case_id: newCase.id,
+            description: 'Initial contact',
+            due_date: new Date(Date.now() + service.initial_contact_days * 24 * 60 * 60 * 1000),
+            staff_id,
+          });
+        }
+
+        if (service.intake_interview_days) {
+          tasks.push({
+            case_id: newCase.id,
+            description: 'Intake Interview',
+            due_date: new Date(Date.now() + service.intake_interview_days * 24 * 60 * 60 * 1000),
+            staff_id,
+          });
+        }
+
+        // Employment Action Plan (EAP) task (e.g., within 2 weeks)
+        if (service.action_plan_weeks) {
+          tasks.push({
+            case_id: newCase.id,
+            description: 'Employment Action Plan (EAP)',
+            due_date: new Date(Date.now() + service.action_plan_weeks * 7 * 24 * 60 * 60 * 1000),
+            staff_id,
+          });
+        }
+
+        await this.prisma.task.createMany({ data: tasks });
+      }
+
+      return newCase;
     } catch (err) {
       prismaError(err);
     }

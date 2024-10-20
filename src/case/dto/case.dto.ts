@@ -28,14 +28,14 @@ export class CreateCaseDto {
     example: 'WINDSOR',
     required: true,
   })
-  @IsEnum({ Region })
+  @IsEnum(Region)
   region: Region;
 
   @ApiProperty({
     example: 'OPEN',
     required: false,
   })
-  @IsEnum({ Status })
+  @IsEnum(Status)
   status?: Status;
 
   @ApiProperty({
@@ -44,6 +44,14 @@ export class CreateCaseDto {
   })
   @IsDateString()
   start_at?: Date;
+
+  @ApiProperty({
+    example: 'asdsad343fa434',
+    required: true,
+    description: 'Tasks are assigned to which staff member',
+  })
+  @IsString()
+  staff_id: string;
 }
 
 export class UpdateCaseDto {
