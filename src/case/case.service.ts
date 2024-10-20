@@ -37,6 +37,7 @@ export class CaseService {
   async createCase(dto: CreateCaseDto) {
     try {
       const { client_id, case_manager_id, service_id, start_at, region, status, staff_id } = dto;
+      const start_date = new Date(start_at);
 
       const service = await this.prisma.service.findUnique({
         where: { id: dto.service_id },
@@ -52,7 +53,7 @@ export class CaseService {
           case_manager_id,
           staff_id,
           service_id,
-          start_at: new Date(start_at).toISOString(),
+          start_at: start_date.toISOString(),
           region,
           status: status || Status.OPEN,
         },
@@ -65,7 +66,9 @@ export class CaseService {
           tasks.push({
             case_id: newCase.id,
             description: 'Initial contact',
-            due_date: new Date(Date.now() + service.initial_contact_days * 24 * 60 * 60 * 1000),
+            due_date: new Date(
+              start_date.getTime() + service.initial_contact_days * 24 * 60 * 60 * 1000,
+            ),
             staff_id,
           });
         }
@@ -74,7 +77,9 @@ export class CaseService {
           tasks.push({
             case_id: newCase.id,
             description: 'Intake Interview',
-            due_date: new Date(Date.now() + service.intake_interview_days * 24 * 60 * 60 * 1000),
+            due_date: new Date(
+              start_date.getTime() + service.intake_interview_days * 24 * 60 * 60 * 1000,
+            ),
             staff_id,
           });
         }
@@ -84,7 +89,9 @@ export class CaseService {
           tasks.push({
             case_id: newCase.id,
             description: 'Employment Action Plan (EAP)',
-            due_date: new Date(Date.now() + service.action_plan_weeks * 7 * 24 * 60 * 60 * 1000),
+            due_date: new Date(
+              start_date.getTime() + service.action_plan_weeks * 7 * 24 * 60 * 60 * 1000,
+            ),
             staff_id,
           });
         }
