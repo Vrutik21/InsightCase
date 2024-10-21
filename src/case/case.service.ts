@@ -27,6 +27,14 @@ export class CaseService {
     });
   }
 
+  async getAllCases() {
+    try {
+      return await this.prisma.case.findMany();
+    } catch (err) {
+      prismaError(err);
+    }
+  }
+
   async getCasesForUser(user_id: string) {
     return this.prisma.case_access.findMany({
       where: { user_id },

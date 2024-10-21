@@ -15,6 +15,11 @@ export class CaseController {
     return this.caseService.findCaseById(id);
   }
 
+  @Get()
+  getallCases() {
+    return this.caseService.getAllCases();
+  }
+
   @Post()
   createCase(@Body() dto: CreateCaseDto) {
     return this.caseService.createCase(dto);
