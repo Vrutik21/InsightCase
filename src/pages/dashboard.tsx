@@ -15,10 +15,10 @@ export default function Dashboard() {
     //     navigate('/createtask')
     // }
   return (
-    <div className="overflow-hidden pr-12 rounded-md bg-zinc-800 max-md:pr-5">
+    <div className="overflow-hidden pr-9 rounded-md bg-custom-dark-indigo max-md:pr-5">
       <div className="flex gap-5 max-md:flex-col">
-        <div className="flex flex-col w-[16%] max-md:ml-0 max-md:w-full">
-          <div className="flex overflow-hidden relative flex-col gap-5 justify-between items-start px-5 pb-10 w-full whitespace-nowrap rounded">
+        <div className="flex flex-col w-[14%] max-md:ml-0 max-md:w-full">
+          <div className="flex overflow-hidden relative flex-col gap-5 justify-between items-start px-0 pb-10 w-full whitespace-nowrap rounded">
             <Navbar/>
             {/* <img
               loading="lazy"
@@ -47,7 +47,7 @@ export default function Dashboard() {
           <div className="flex flex-col mt-9 w-full max-md:mt-10 max-md:max-w-full">
             <div className="flex flex-wrap gap-5 justify-between w-full font-semibold text-white max-md:max-w-full">
               <div className="my-auto text-2xl">Task</div>
-              {/* <div className="flex gap-8 items-center px-4 py-3.5 text-sm rounded-lg bg-zinc-700">
+              {/* <div className="flex gap-8 items-center px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo">
                 <div className="self-stretch my-auto">Create Task</div>
                 <img
                   loading="lazy"
@@ -58,7 +58,7 @@ export default function Dashboard() {
               <Link href="/createtask" passHref>
                 <button
                     // onClick={handleCreateTask}
-                    className="flex gap-8 items-center px-4 py-3.5 text-sm rounded-lg bg-zinc-700"
+                    className="flex gap-8 items-center px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo"
                     >
                     <div className="self-stretch my-auto">Create Task</div>
                     <img
@@ -72,10 +72,10 @@ export default function Dashboard() {
             </div>
             <div className="mt-9 w-full max-md:max-w-full">
               <div className="flex gap-5 max-md:flex-col">
-                <div className="flex flex-col w-3/5 max-md:ml-0 max-md:w-full">
-                  <div className="grow pr-1.5 pl-8 w-full rounded-2xl bg-zinc-700 max-md:pl-5 max-md:mt-10 max-md:max-w-full">
-                    <div className="flex gap-5 max-md:flex-col">
-                      <div className="flex flex-col w-[43%] max-md:ml-0 max-md:w-full">
+                <div className="flex flex-col w-[46%] max-md:ml-0 max-md:w-full">
+                  <div className="grow pr-1.5 pl-8 w-full rounded-2xl bg-custom-light-indigo max-md:pl-5 max-md:mt-10 max-md:max-w-full">
+                    <div className="flex gap-0 max-md:flex-col">
+                      <div className="flex flex-col ml-0 w-[50%] max-md:ml-0 max-md:w-full">
                         <div className="flex z-10 flex-col self-stretch my-auto max-md:mt-10">
                           <div className="text-3xl font-medium text-white">
                             Hello Hannah!
@@ -85,7 +85,7 @@ export default function Dashboard() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-col ml-5 w-[57%] max-md:ml-0 max-md:w-full">
+                      <div className="flex flex-col m-0 p-0 w-2/5 max-md:ml-0 max-md:w-full">
                         <img
                           loading="lazy"
                           src="https://cdn.builder.io/api/v1/image/assets/TEMP/ae308c4ed73174abd5d84c8d9084b1a29d42e0bc886e9f972a741ceed420e619?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
@@ -96,7 +96,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="flex flex-col ml-5 w-1/5 max-md:ml-0 max-md:w-full">
-                  <div className="flex overflow-hidden flex-col pt-7 w-full rounded-2xl bg-zinc-700 max-md:mt-10">
+                  <div className="flex overflow-hidden flex-col pt-7 w-full rounded-2xl bg-custom-light-indigo max-md:mt-10">
                     <div className="flex flex-col px-6 max-md:px-5">
                       <div className="self-start text-3xl font-semibold leading-none text-white">
                         03
@@ -109,7 +109,7 @@ export default function Dashboard() {
                   </div>
                 </div>
                 <div className="flex flex-col ml-5 w-1/5 max-md:ml-0 max-md:w-full">
-                  <div className="flex overflow-hidden flex-col pt-7 w-full rounded-2xl bg-zinc-700 max-md:mt-10">
+                  <div className="flex overflow-hidden flex-col pt-7 w-full rounded-2xl bg-custom-light-indigo max-md:mt-10">
                     <div className="flex flex-col items-start px-6 max-md:px-5">
                       <div className="text-3xl font-semibold leading-none text-white">
                         07

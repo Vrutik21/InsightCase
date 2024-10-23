@@ -98,7 +98,7 @@ const Calendar: React.FC = () => {
             {currentEvents.length > 0 &&
               currentEvents.map((event: EventApi) => (
                 <li
-                  className="border border-gray-200 shadow px-4 py-2 rounded-md text-blue-800"
+                  className="border border-gray-200 shadow px-4 py-2 rounded-md text-blue-800 "
                   key={event.id}
                 >
                   {event.title}
