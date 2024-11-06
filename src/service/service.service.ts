@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { prismaError } from 'src/shared/error-handling';
+import { prismaError } from 'src/shared/filters/error-handling';
 import { CreateServiceDto, UpdateServiceDto } from './dto/service.dto';
 
 @Injectable()
@@ -9,7 +9,11 @@ export class ServiceService {
 
   async getAllServices() {
     try {
-      return await this.prisma.service.findMany();
+      return await this.prisma.service.findMany({
+        include: {
+          _count: { select: { cases: true } },
+        },
+      });
     } catch (err) {
       prismaError(err);
     }

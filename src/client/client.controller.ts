@@ -1,11 +1,13 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ClientService } from './client.service';
-import { JwtAuthGuard } from 'src/shared/guards/auth.guard';
+import { JwtAuthGuard } from 'src/shared/guards/jwt.guard';
 import { CreateClientDto, UpdateClientDto } from './dto/client.dto';
 import { RolesGuard } from 'src/shared/guards/role.guard';
 import { Roles } from 'src/shared/decorators/roles.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@ApiTags('Client')
+// @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('client')
 export class ClientController {
   constructor(private readonly clientService: ClientService) {}

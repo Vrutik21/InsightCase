@@ -1,7 +1,7 @@
 import { ConflictException, ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateClientDto, UpdateClientDto } from './dto/client.dto';
-import { prismaError } from 'src/shared/error-handling';
+import { prismaError } from 'src/shared/filters/error-handling';
 
 @Injectable()
 export class ClientService {
@@ -21,7 +21,15 @@ export class ClientService {
 
   async getAllClients() {
     try {
-      return await this.prisma.client.findMany();
+      return await this.prisma.client.findMany({
+        include: {
+          _count: {
+            select: {
+              cases: true,
+            },
+          },
+        },
+      });
     } catch (err) {
       prismaError(err);
     }

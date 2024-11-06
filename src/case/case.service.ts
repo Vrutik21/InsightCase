@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Access_level, Status } from '@prisma/client';
 import { CreateCaseDto } from './dto/case.dto';
-import { prismaError } from 'src/shared/error-handling';
+import { prismaError } from 'src/shared/filters/error-handling';
 
 @Injectable()
 export class CaseService {
@@ -29,7 +29,15 @@ export class CaseService {
 
   async getAllCases() {
     try {
-      return await this.prisma.case.findMany();
+      return await this.prisma.case.findMany({
+        include: {
+          case_manager: true,
+          staff: true,
+          service: true,
+          tasks: true,
+          client: true,
+        },
+      });
     } catch (err) {
       prismaError(err);
     }

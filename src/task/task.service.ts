@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { prismaError } from 'src/shared/error-handling';
+import { prismaError } from 'src/shared/filters/error-handling';
 import { CreateTaskDto } from './dto/task.dto';
 
 @Injectable()

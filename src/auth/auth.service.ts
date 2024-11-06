@@ -1,19 +1,131 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
 import { User } from '@prisma/client';
 import { SignInDto, SignUpDto } from './dto/auth.dto';
 import * as dotenv from 'dotenv';
+import {
+  AuthenticationResult,
+  ConfidentialClientApplication,
+  Configuration,
+} from '@azure/msal-node';
+import { ConfigService } from '@nestjs/config';
+import * as appConfig from '../../appConfig.json';
+import { Request } from 'express';
 dotenv.config();
 
 @Injectable()
 export class AuthService {
+  // ConfidentialClientApplication is used for WebApp and WebAPI scenarios. See MSAL-Node docs for more info.
+  private msalClient: ConfidentialClientApplication;
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
-  ) {}
+    // Setting ConfigService to infer environment variables types to prevent TypeScript errors.
+    private configService: ConfigService<
+      {
+        AZURE_CLIENT_ID: string;
+        AZURE_TENANT_ID: string;
+        AZURE_CLIENT_SECRET: string;
+        AZURE_REDIRECT_URI: string;
+      },
+      true
+    >,
+  ) {
+    const msalConfig: Configuration = {
+      auth: {
+        clientId: this.configService.get<string>('AZURE_CLIENT_ID', {
+          // Infer the type of the environment variable from the types set in constructor. Prevents TypeScript error.
+          infer: true,
+        }),
+        authority: `https://login.microsoftonline.com/${this.configService.get<string>('AZURE_TENANT_ID')}`,
+        clientSecret: this.configService.get<string>('AZURE_CLIENT_SECRET', {
+          infer: true,
+        }),
+      },
+    };
+    this.msalClient = new ConfidentialClientApplication(msalConfig);
+  }
 
+  // my new auth using microsoft graph api
+  async signInAuth(): Promise<string> {
+    const authUrlParameters = {
+      scopes: appConfig.AZURE_SCOPES,
+      redirectUri: this.configService.get<string>('AZURE_REDIRECT_URI', {
+        infer: true,
+      }),
+    };
+
+    const response = await this.msalClient.getAuthCodeUrl(authUrlParameters);
+    console.log(response, 'res');
+    return response;
+  }
+
+  async handleRedirect(req: Request, code: string): Promise<AuthenticationResult> {
+    const tokenRequest = {
+      code: code,
+      scopes: appConfig.AZURE_SCOPES,
+      redirectUri: this.configService.get<string>('AZURE_REDIRECT_URI', {
+        infer: true,
+      }),
+    };
+
+    console.log(tokenRequest, 'tokenRequest');
+
+    // Code is received in the URL from Redirection URI. MSAL then handles the exchange of code for token.
+    const response = await this.msalClient.acquireTokenByCode(tokenRequest);
+
+    console.log(response, 'response');
+
+    req.session.token = response.accessToken;
+
+    console.log(req.session.token, 'gasd');
+
+    // Log user sign in.
+    if (response.account) console.log(response.account.username + ' sign in successful.');
+    else console.log('Unknown User sign in successful.');
+
+    return response;
+  }
+
+  async signOut(req: any): Promise<HttpStatus> {
+    return new Promise((resolve, reject) => {
+      // If no token, user is not signed in.
+      if (!req.session.token) resolve(HttpStatus.BAD_REQUEST);
+
+      // Destroy user session to log out.
+      req.session.destroy((err) => {
+        if (err) {
+          reject(new Error(err.message));
+        }
+      });
+
+      resolve(HttpStatus.OK);
+    });
+  }
+
+  async validateMicrosoftToken(token: any): Promise<boolean> {
+    try {
+      const msalResponse = await this.msalClient.acquireTokenSilent({
+        account: token,
+        scopes: appConfig.AZURE_SCOPES,
+      });
+      return !!msalResponse;
+    } catch {
+      throw new UnauthorizedException('Invalid Microsoft token');
+    }
+  }
+
+  async getAfterLoginRedirect(req: Request): Promise<string> {
+    return req.session.afterLoginRedirect || '/api/v1';
+  }
+
+  async deleteAfterLoginRedirect(req: Request): Promise<void> {
+    delete req.session.afterLoginRedirect;
+  }
+
+  // my old auth
   async signUp(dto: SignUpDto) {
     const { name, email, password, role } = dto;
     const existingUser = await this.prisma.user.findUnique({

@@ -1,10 +1,12 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CaseService } from './case.service';
 import { CaseAccessGuard } from 'src/shared/guards/case.guard';
-import { JwtAuthGuard } from 'src/shared/guards/auth.guard';
+import { JwtAuthGuard } from 'src/shared/guards/jwt.guard';
 import { CreateCaseDto } from './dto/case.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@UseGuards(JwtAuthGuard)
+@ApiTags('Case')
+// @UseGuards(JwtAuthGuard)
 @Controller('case')
 export class CaseController {
   constructor(private readonly caseService: CaseService) {}
