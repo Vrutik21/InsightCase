@@ -8,6 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 // Define the shape of your data
 interface TableDataRow {
@@ -36,7 +37,7 @@ export default function MyComponent() {
         // Fetching data from the given site
         const fetchData = async () => {
             try {
-              const response = await fetch('https://57c9-137-207-232-221.ngrok-free.app/case', {
+              const response = await fetch('https://55c1-184-147-92-214.ngrok-free.app/case', {
                 headers: {
                   'ngrok-skip-browser-warning': 'true' // Add this header
                 }
@@ -66,14 +67,23 @@ export default function MyComponent() {
           <div className="flex flex-col self-stretch mb-auto mt-10 w-full max-md:mt-10 max-md:max-w-full">
             <div className="flex justify-between gap-10 items-center w-full font-semibold text-white max-md:max-w-full">
               <div className="my-auto text-2xl">Case Details</div>
-              <div className="flex items-center gap-8 px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo">
+              <Link href="/createcase" passHref>
+              <button
+                className="flex items-center gap-8 px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-300 transition-colors"
+                onClick={() => {
+                  // Add your click handler here
+                  console.log("Button clicked");
+                }}
+              >
                 <div className="self-stretch my-auto">Add Cases</div>
                 <img
                   loading="lazy"
                   src="https://cdn.builder.io/api/v1/image/assets/TEMP/abf0b717729f936f37d6e7bd3471cd624ff26eefb03ede9842209d5507e349cc?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
                   className="object-contain shrink-0 self-stretch my-auto w-8 aspect-square"
+                  alt="Add icon"
                 />
-              </div>
+              </button>
+              </Link>
             </div>
             <div className="flex overflow-hidden flex-col mt-4 w-full rounded-lg bg-custom-light-indigo min-h-[777px] max-md:max-w-full">
               <div className="flex flex-col justify-center w-full text-sm font-medium leading-none bg-custom-light-indigo max-md:max-w-full">
@@ -111,11 +121,15 @@ export default function MyComponent() {
     <Table sx={{ minWidth: 650, backgroundColor: '#21222d' }} aria-label="simple table" stickyHeader>
         <TableHead>
             <TableRow>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>id</TableCell>
+                {/* <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>id</TableCell>
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>client_id</TableCell>
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>case_manager_id</TableCell>
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>staff_id</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>service_id</TableCell>
+                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>service_id</TableCell> */}
+                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Case Manager Name</TableCell>
+                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>staff name</TableCell>
+                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>service name</TableCell>
+                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Client name</TableCell>
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>region</TableCell>
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>status</TableCell>
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Openend_at</TableCell>
@@ -123,21 +137,21 @@ export default function MyComponent() {
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>closed_at</TableCell>
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>created_at</TableCell>
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>updated_at</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Case Manager Name</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>staff name</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>service name</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Client name</TableCell>
                 <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Number of task</TableCell>
             </TableRow>
         </TableHead>
         <TableBody>
             {tableData.map((row, index) => (
                 <TableRow key={index} sx={{ backgroundColor: '#21222d' }}>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.id}</TableCell>
+                    {/* <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.id}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.client_id}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.case_manager_id}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.staff_id}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.service_id}</TableCell>
+                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.service_id}</TableCell> */}
+                                        <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.case_manager.name}</TableCell>
+                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.staff.name}</TableCell>
+                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.service.name}</TableCell>
+                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.client.first_name+' '+ row.client.last_name}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.region}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.status}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.opened_at}</TableCell>
@@ -145,10 +159,7 @@ export default function MyComponent() {
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.closed_at ?? '-'}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.created_at}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.updated_at}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.case_manager.name}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.staff.name}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.service.name}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.client.first_name+' '+ row.client.last_name}</TableCell>
+
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.tasks?.length ?? 0}</TableCell>
                 </TableRow>
             ))}

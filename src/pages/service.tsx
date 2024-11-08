@@ -25,7 +25,7 @@ export default function MyComponent() {
         // Fetching data from the given site
         const fetchData = async () => {
             try {
-              const response = await fetch('https://57c9-137-207-232-221.ngrok-free.app/service', {
+              const response = await fetch('https://61a6-142-114-74-92.ngrok-free.app/service', {
                 headers: {
                   'ngrok-skip-browser-warning': 'true' // Add this header
                 }

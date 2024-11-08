@@ -8,6 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { useState, useEffect } from 'react';
+import Link from 'next/link'
 
 // Define the shape of your data
 interface TableDataRow {
@@ -31,7 +32,7 @@ export default function MyComponent() {
         // Fetching data from the given site
         const fetchData = async () => {
             try {
-              const response = await fetch('https://57c9-137-207-232-221.ngrok-free.app/client', {
+              const response = await fetch('https://a255-137-207-232-219.ngrok-free.app/client', {
                 headers: {
                   'ngrok-skip-browser-warning': 'true' // Add this header
                 }
@@ -61,14 +62,16 @@ export default function MyComponent() {
           <div className="flex flex-col self-stretch mb-auto mt-10 w-full max-md:mt-10 max-md:max-w-full">
             <div className="flex justify-between gap-10 items-center w-full font-semibold text-white max-md:max-w-full">
               <div className="my-auto text-2xl">Client Details</div>
-              <div className="flex items-center gap-8 px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo">
-                <div className="self-stretch my-auto">Add Clients</div>
-                <img
-                  loading="lazy"
-                  src="https://cdn.builder.io/api/v1/image/assets/TEMP/abf0b717729f936f37d6e7bd3471cd624ff26eefb03ede9842209d5507e349cc?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
-                  className="object-contain shrink-0 self-stretch my-auto w-8 aspect-square"
-                />
-              </div>
+              <Link href="/createclient" passHref>
+              <button className="flex items-center gap-8 px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo hover:bg-indigo-600 transition-colors">
+                  <div className="self-stretch my-auto">Add Clients</div>
+                  <img
+                    loading="lazy"
+                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/abf0b717729f936f37d6e7bd3471cd624ff26eefb03ede9842209d5507e349cc?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+                    className="object-contain shrink-0 self-stretch my-auto w-8 aspect-square"
+                  />
+                </button>
+                </Link>
             </div>
             <div className="flex overflow-hidden flex-col mt-4 w-full rounded-lg bg-custom-light-indigo min-h-[777px] max-md:max-w-full">
               <div className="flex flex-col justify-center w-full text-sm font-medium leading-none bg-custom-light-indigo max-md:max-w-full">
@@ -134,12 +137,13 @@ export default function MyComponent() {
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.region}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.created_at}</TableCell>
                     <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.updated_at}</TableCell>
-                    <TableCell>{row._count.cases}</TableCell>
+                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row._count?.cases || 0}</TableCell>
                 </TableRow>
             ))}
         </TableBody>
     </Table>
 </TableContainer>
+
 
 
               {/* <div className="flex flex-col justify-center items-end px-3 py-2 w-full border-b border-slate-400 max-md:max-w-full">
