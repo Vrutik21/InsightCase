@@ -1,17 +1,28 @@
 import * as React from "react";
-import Link from 'next/link';
-import { useState } from "react";
+import { useRouter } from "next/router";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
+  const router = useRouter();
   const [activeButton, setActiveButton] = useState<string | null>(null);
 
-  const handleButtonClick = (button: string) => {
+  useEffect(() => {
+    // Set active button based on the current path
+    const currentPath = router.pathname;
+    if (currentPath.includes("dashboard")) setActiveButton("task");
+    else if (currentPath.includes("case")) setActiveButton("case");
+    else if (currentPath.includes("client")) setActiveButton("client");
+    else if (currentPath.includes("service")) setActiveButton("service");
+  }, [router.pathname]);
+
+  const handleButtonClick = (button: string, path: string) => {
     setActiveButton(button);
+    router.push(path);
   };
 
   // Define rectangle styles dynamically based on the active button
   const getRectangleStyles = () => {
-    let topValue = "174px"; // Default for service
+    let topValue = "174px"; // Default for "task"
     switch (activeButton) {
       case "task":
         topValue = "174px";
@@ -28,20 +39,21 @@ export default function Navbar() {
       default:
         break;
     }
-    
+
     return {
       width: "210px",
       height: "60px",
       top: topValue,
       left: "24px",
       borderRadius: "47px",
-      position: "absolute" as "absolute", // To ensure the rectangle is positioned correctly
-      backgroundColor: "#21222d", // Adjust to your desired background color
-      color: "#DBDBDB", // Text color
-      display: "flex", // For centering text
+      position: "absolute" as const,
+      backgroundColor: "#21222d",
+      color: "#DBDBDB",
+      display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      fontSize: "18px", // Adjust text size if needed
+      fontSize: "18px",
+      transition: "top 0.3s ease, background-color 0.3s ease", // Smooth animation for top and color
     };
   };
 
@@ -61,83 +73,73 @@ export default function Navbar() {
         </div>
 
         {/* Task Button */}
-        <div className="flex relative gap-2.5 mt-28 ml-7 text-base font-semibold text-zinc-300 whitespace-nowrap">
+        <div
+          className="flex relative gap-2.5 mt-28 ml-7 text-base font-semibold text-zinc-300 whitespace-nowrap"
+          onClick={() => handleButtonClick("task", "/dashboard")}
+        >
           <img
             loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/3d14be8d3fdc114e28ae55fbc5dd8fce120d2c60430fbe22e5c0e0becbdbbfaf"
             className="object-contain shrink-0 aspect-[0.72] w-[13px]"
           />
-          <Link href="/dashboard">
-            <button
-              className="my-auto bg-transparent text-white border-none cursor-pointer"
-              onClick={() => handleButtonClick('task')}
-            >
-              Task
-            </button>
-          </Link>
+          <button className="my-auto bg-transparent text-white border-none cursor-pointer">
+            Task
+          </button>
         </div>
 
         {/* Case Button */}
-        <div className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300">
+        <div
+          className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300"
+          onClick={() => handleButtonClick("case", "/case")}
+        >
           <img
             loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/27259f0d190eabe812548ce32c6568b22cef8b293d9bee1a5f2831412d1c69ae"
             className="object-contain shrink-0 aspect-[0.83] w-[15px]"
           />
-          <Link href="/case">
-            <button
-              className="my-auto bg-transparent text-white border-none cursor-pointer"
-              onClick={() => handleButtonClick('case')}
-            >
-              Case
-            </button>
-          </Link>
+          <button className="my-auto bg-transparent text-white border-none cursor-pointer">
+            Case
+          </button>
         </div>
 
         {/* Client Details Button */}
-        <div className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300">
+        <div
+          className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300"
+          onClick={() => handleButtonClick("client", "/client")}
+        >
           <img
             loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/cae3528aba236fb5a644a4d7a87a8e0989c5eddccedd74576a592331bdd7eca9"
             className="object-contain shrink-0 aspect-[0.83] w-[15px]"
           />
-          <Link href="/client">
-            <button
-              className="my-auto bg-transparent text-white border-none cursor-pointer"
-              onClick={() => handleButtonClick('client')}
-            >
-              Client Details
-            </button>
-          </Link>
+          <button className="my-auto bg-transparent text-white border-none cursor-pointer">
+            Client
+          </button>
         </div>
 
         {/* Service Button */}
-        <div className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300">
+        <div
+          className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300"
+          onClick={() => handleButtonClick("service", "/service")}
+        >
           <img
             loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/8bd3325695840cd0c09ac5ce1c32fa6fe5eddbb2fde084b1ae1e1b60ac762291"
             className="object-contain shrink-0 aspect-[0.83] w-[15px]"
           />
-          <Link href="/service">
-            <button
-              className="my-auto bg-transparent text-white border-none cursor-pointer"
-              onClick={() => handleButtonClick('service')}
-            >
-              Service
-            </button>
-          </Link>
+          <button className="my-auto bg-transparent text-white border-none cursor-pointer">
+            Service
+          </button>
         </div>
 
         {/* Display the rectangle if a button is active */}
         {activeButton && (
           <div style={getRectangleStyles()}>
-            {/* Wrap the text in a span and apply the Tailwind class */}
             <span className="text-amber-300">
               {activeButton.charAt(0).toUpperCase() + activeButton.slice(1)}
             </span>
           </div>
         )}
-
 
         {/* Bottom Image */}
         <img

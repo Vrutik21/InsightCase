@@ -1,56 +1,56 @@
 import * as React from "react";
 import Navbar from "@/components/navbar";
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import { useState, useEffect } from 'react';
-import Link from 'next/link'
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 
 // Define the shape of your data
 interface TableDataRow {
-    id: string;
-    reference_number: string;
-    first_name: string;
-    last_name: string;
-    dob: string;
-    email: string;
-    phone: string;
-    address: string;
-    region: string;
-    created_at: string;
-    updated_at: string;
-    _count: {cases: number};
-  }
+  id: string;
+  reference_number: string;
+  first_name: string;
+  last_name: string;
+  dob: string;
+  email: string;
+  phone: string;
+  address: string;
+  region: string;
+  created_at: string;
+  updated_at: string;
+  _count: { cases: number };
+}
 
 export default function MyComponent() {
-    const [tableData, setTableData] = useState<TableDataRow[]>([]);
-    useEffect(() => {
-        // Fetching data from the given site
-        const fetchData = async () => {
-            try {
-              const response = await fetch('https://a255-137-207-232-219.ngrok-free.app/client', {
-                headers: {
-                  'ngrok-skip-browser-warning': 'true' // Add this header
-                }
-              }); // URL might need correction
-              const data: TableDataRow[] = await response.json(); // Use the correct type here
-              console.log(data);
-              setTableData(data); // Storing data in state variable
-            } catch (error) {
-              console.error('Error fetching data:', error);
-            }
-        };
-    
-        fetchData();
-      }, []);
+  const [tableData, setTableData] = useState<TableDataRow[]>([]);
+  useEffect(() => {
+    // Fetching data from the given site
+    const fetchData = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/client", {
+          headers: {
+            "ngrok-skip-browser-warning": "true", // Add this header
+          },
+        }); // URL might need correction
+        const data: TableDataRow[] = await response.json(); // Use the correct type here
+        console.log(data);
+        setTableData(data); // Storing data in state variable
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <div className="overflow-hidden pr-9 rounded-md bg-custom-dark-indigo max-md:pr-5">
       <div className="flex gap-5 max-md:flex-col">
-        <Navbar/>
+        <Navbar />
         {/* <div className="flex flex-col w-[16%] max-md:ml-0 max-md:w-full">
           <img
             loading="lazy"
@@ -63,7 +63,7 @@ export default function MyComponent() {
             <div className="flex justify-between gap-10 items-center w-full font-semibold text-white max-md:max-w-full">
               <div className="my-auto text-2xl">Client Details</div>
               <Link href="/createclient" passHref>
-              <button className="flex items-center gap-8 px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo hover:bg-indigo-600 transition-colors">
+                <button className="flex items-center gap-8 px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo hover:bg-indigo-600 transition-colors">
                   <div className="self-stretch my-auto">Add Clients</div>
                   <img
                     loading="lazy"
@@ -71,7 +71,7 @@ export default function MyComponent() {
                     className="object-contain shrink-0 self-stretch my-auto w-8 aspect-square"
                   />
                 </button>
-                </Link>
+              </Link>
             </div>
             <div className="flex overflow-hidden flex-col mt-4 w-full rounded-lg bg-custom-light-indigo min-h-[777px] max-md:max-w-full">
               <div className="flex flex-col justify-center w-full text-sm font-medium leading-none bg-custom-light-indigo max-md:max-w-full">
@@ -105,46 +105,148 @@ export default function MyComponent() {
               </div>
               {/* <Navbar/> */}
 
-              <TableContainer component={Paper} style={{ maxHeight: '400px', overflow: 'auto' }} sx={{ backgroundColor: '#21222d' }}>
-    <Table sx={{ minWidth: 650 }} aria-label="simple table" stickyHeader>
-        <TableHead>
-            <TableRow>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Clientid</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Referenceid</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Firstname</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Lastname</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Dob</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Email</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Phone</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Address</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Region</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Created At</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Updated At</TableCell>
-                <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>Number of Cases</TableCell>
-            </TableRow>
-        </TableHead>
-        <TableBody>
-            {tableData.map((row, index) => (
-                <TableRow key={index} sx={{ backgroundColor: '#21222d' }}>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.id}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.reference_number}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.first_name}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.last_name}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.dob}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.email}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.phone}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.address}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.region}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.created_at}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row.updated_at}</TableCell>
-                    <TableCell sx={{ color: 'white', backgroundColor: '#21222d' }}>{row._count?.cases || 0}</TableCell>
-                </TableRow>
-            ))}
-        </TableBody>
-    </Table>
-</TableContainer>
-
-
+              <TableContainer
+                component={Paper}
+                style={{ maxHeight: "400px", overflow: "auto" }}
+                sx={{ backgroundColor: "#21222d" }}
+              >
+                <Table
+                  sx={{ minWidth: 650 }}
+                  aria-label="simple table"
+                  stickyHeader
+                >
+                  <TableHead>
+                    <TableRow>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        #
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Referenceid
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Firstname
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Lastname
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Dob
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Email
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Phone
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Address
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Region
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Created At
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Updated At
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        Number of Cases
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {tableData.map((row, index) => (
+                      <TableRow key={index} sx={{ backgroundColor: "#21222d" }}>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {index + 1}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.reference_number}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.first_name}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.last_name}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.dob}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.email}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.phone}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.address}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.region}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.created_at}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row.updated_at}
+                        </TableCell>
+                        <TableCell
+                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                        >
+                          {row._count?.cases || 0}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
 
               {/* <div className="flex flex-col justify-center items-end px-3 py-2 w-full border-b border-slate-400 max-md:max-w-full">
                 <div className="flex max-w-full bg-gray-400 rounded-xl min-h-[3px] w-[769px]" />
