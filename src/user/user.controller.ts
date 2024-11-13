@@ -14,10 +14,11 @@ export class UserController {
 
   @Get()
   // @UseGuards(AuthGuard)
-  async getUserProfile(@Req() req: Request, @Res() res: Response): Promise<any> {
+  async getUserProfile(@Req() req: Request, @Res() res: Response) {
     try {
       console.log(req.session.token, 'token');
       const response = await this.userService.getUserProfile(req.session.token!);
+      console.log(response, 'hi');
       res.status(HttpStatus.OK).send(response.data);
     } catch (error) {
       const errMessage = 'Error getting user profile: ' + error.message;

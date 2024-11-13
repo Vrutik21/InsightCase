@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ExceptionFilter, ValidationPipe, VersioningType } from '@nestjs/common';
+import { ExceptionFilter, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ConfigService } from '@nestjs/config';
 import * as session from 'express-session';
@@ -21,12 +21,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   const configService = app.get(ConfigService);
   // Set Route Prefix to begin with /api/. E.g. localhost:3000/api
-  app.setGlobalPrefix('api');
-  // Enable API Version route prefix. E.g. localhost:3000/api/v1/route
-  app.enableVersioning({
-    type: VersioningType.URI,
-    defaultVersion: '1',
-  });
+  // app.setGlobalPrefix('api');
+  // // Enable API Version route prefix. E.g. localhost:3000/api/v1/route
+  // app.enableVersioning({
+  //   type: VersioningType.URI,
+  //   defaultVersion: '1',
+  // });
   const options = new DocumentBuilder()
     .setTitle('Case Management Tool API')
     .setDescription(

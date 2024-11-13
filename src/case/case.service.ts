@@ -1,12 +1,18 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Access_level, Status } from '@prisma/client';
 import { CreateCaseDto } from './dto/case.dto';
 import { prismaError } from 'src/shared/filters/error-handling';
+import { GraphService } from 'src/graph/graph.service';
+import { Request } from 'express';
+import axios from 'axios';
 
 @Injectable()
 export class CaseService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly graphService: GraphService,
+  ) {}
 
   // Find a case by ID
   async findCaseById(id: string) {
@@ -33,9 +39,13 @@ export class CaseService {
         include: {
           case_manager: true,
           staff: true,
-          service: true,
-          tasks: true,
           client: true,
+          service: true,
+          _count: {
+            select: {
+              tasks: true,
+            },
+          },
         },
       });
     } catch (err) {
@@ -118,6 +128,43 @@ export class CaseService {
       return newCase;
     } catch (err) {
       prismaError(err);
+    }
+  }
+
+  async testTasks(req: Request) {
+    try {
+      const accessToken = await this.graphService.getAccessToken(req);
+      const start_date = new Date('2024-11-7');
+      const due_date = new Date(start_date.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+      if (!accessToken) {
+        throw new UnauthorizedException('User not logged in');
+      }
+
+      return await this.createToDoTask('Intake interview', due_date, accessToken);
+    } catch (err) {
+      prismaError(err);
+    }
+  }
+
+  // Helper function to create a Microsoft To Do task
+  private async createToDoTask(title: string, dueDate: Date, accessToken: string) {
+    try {
+      // const staff_id = 'dad674a7-4491-48ca-b4ae-68f13c384988';
+      const userEndpoint = `https://graph.microsoft.com/v1.0/me/todo/lists`;
+      await axios.get(
+        userEndpoint,
+        // {
+        //   displayName: 'List created from app',
+        // },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        },
+      );
+    } catch (err) {
+      console.error('Error creating Microsoft To Do task:', err);
     }
   }
 }

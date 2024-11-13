@@ -16,13 +16,13 @@ export class UserService {
     }
   }
 
-  async getUserProfile(accessToken: string): Promise<AxiosResponse> {
+  async getUserProfile(accessToken: string) {
     const url = appConfig.GRAPH_API_ROOT_URL + '/me';
     const headers = {
       Authorization: `Bearer ${accessToken}`,
     };
 
-    return axios.get(url, { headers });
+    return await axios.get(url, { headers });
   }
 
   // async createCalendarEvent(userEmail: string, task: Task) {
