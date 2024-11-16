@@ -24,12 +24,17 @@ export class CaseController {
   }
 
   @Post()
-  createCase(@Body() dto: CreateCaseDto) {
-    return this.caseService.createCase(dto);
+  createCase(@Body() dto: CreateCaseDto, @Req() req: Request) {
+    return this.caseService.createCase(dto, req);
   }
 
-  @Get('tasks')
+  @Get('list')
   testTask(@Req() req: Request) {
     return this.caseService.testTasks(req);
   }
+
+  // @Get('tasks')
+  // createToDoTask(@Req() req: Request) {
+  //   return this.caseService.createToDoTask(req);
+  // }
 }

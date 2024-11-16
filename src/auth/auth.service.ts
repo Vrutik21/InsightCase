@@ -39,7 +39,7 @@ export class AuthService {
           // Infer the type of the environment variable from the types set in constructor. Prevents TypeScript error.
           infer: true,
         }),
-        authority: `https://login.microsoftonline.com/${this.configService.get<string>('AZURE_TENANT_ID')}`,
+        authority: `https://login.microsoftonline.com/common/oauth2/v2.0/token`,
         clientSecret: this.configService.get<string>('AZURE_CLIENT_SECRET', {
           infer: true,
         }),
@@ -118,7 +118,7 @@ export class AuthService {
   }
 
   async getAfterLoginRedirect(req: Request): Promise<string> {
-    return req.session.afterLoginRedirect || '/api/v1';
+    return req.session.afterLoginRedirect || '/user';
   }
 
   async deleteAfterLoginRedirect(req: Request): Promise<void> {

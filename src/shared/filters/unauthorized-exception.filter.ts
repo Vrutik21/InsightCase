@@ -29,7 +29,7 @@ export class UnauthorizedExceptionFilter implements ExceptionFilter {
     console.error('401 Unauthorized: User not logged in, redirecting to login.');
 
     // Redirect to start authorization flow.
-    response.redirect('v1/auth/login');
+    response.redirect('/auth/login');
   }
 
   // Ensure redirect URL is on the same site as the request. Prevent redirects to malicious site.

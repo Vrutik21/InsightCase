@@ -1,4 +1,4 @@
 {
-  "AZURE_SCOPES": ["calendars.readwrite", "tasks.readwrite", "mail.read"],
+  "AZURE_SCOPES": ["https://graph.microsoft.com/.default"],
   "GRAPH_API_ROOT_URL": "https://graph.microsoft.com/v1.0"
 }

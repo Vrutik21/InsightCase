@@ -4,6 +4,7 @@ import { Access_level, Status } from '@prisma/client';
 import { CreateCaseDto } from './dto/case.dto';
 import { prismaError } from 'src/shared/filters/error-handling';
 import { GraphService } from 'src/graph/graph.service';
+import * as appConfig from 'appConfig.json';
 import { Request } from 'express';
 import axios from 'axios';
 
@@ -60,11 +61,12 @@ export class CaseService {
     });
   }
 
-  async createCase(dto: CreateCaseDto) {
+  async createCase(dto: CreateCaseDto, req: Request) {
     try {
       const { client_id, case_manager_id, service_id, start_at, region, status, staff_id } = dto;
       const start_date = new Date(start_at);
 
+      console.log(start_date.toISOString());
       const service = await this.prisma.service.findUnique({
         where: { id: dto.service_id },
       });
@@ -85,44 +87,67 @@ export class CaseService {
         },
       });
 
-      if (service) {
-        const tasks = [];
+      console.log('first');
 
-        if (service.initial_contact_days) {
-          tasks.push({
-            case_id: newCase.id,
-            description: 'Initial contact',
-            due_date: new Date(
-              start_date.getTime() + service.initial_contact_days * 24 * 60 * 60 * 1000,
-            ),
-            staff_id,
-          });
-        }
+      if (!service) {
+        throw new NotFoundException('Service does not exist!');
+      }
 
-        if (service.intake_interview_days) {
-          tasks.push({
-            case_id: newCase.id,
-            description: 'Intake Interview',
-            due_date: new Date(
-              start_date.getTime() + service.intake_interview_days * 24 * 60 * 60 * 1000,
-            ),
-            staff_id,
-          });
-        }
+      const tasks = [];
 
-        // Employment Action Plan (EAP) task (e.g., within 2 weeks)
-        if (service.action_plan_weeks) {
-          tasks.push({
-            case_id: newCase.id,
-            description: 'Employment Action Plan (EAP)',
-            due_date: new Date(
-              start_date.getTime() + service.action_plan_weeks * 7 * 24 * 60 * 60 * 1000,
-            ),
-            staff_id,
-          });
-        }
+      if (service.initial_contact_days) {
+        tasks.push({
+          case_id: newCase.id,
+          description: 'Initial contact',
+          due_date: new Date(
+            start_date.getTime() + service.initial_contact_days * 24 * 60 * 60 * 1000,
+          ),
+          staff_id,
+        });
+      }
 
-        await this.prisma.task.createMany({ data: tasks });
+      if (service.intake_interview_days) {
+        tasks.push({
+          case_id: newCase.id,
+          description: 'Intake Interview',
+          due_date: new Date(
+            start_date.getTime() + service.intake_interview_days * 24 * 60 * 60 * 1000,
+          ),
+          staff_id,
+        });
+      }
+
+      // Employment Action Plan (EAP) task (e.g., within 2 weeks)
+      if (service.action_plan_weeks) {
+        tasks.push({
+          case_id: newCase.id,
+          description: 'Employment Action Plan (EAP)',
+          due_date: new Date(
+            start_date.getTime() + service.action_plan_weeks * 7 * 24 * 60 * 60 * 1000,
+          ),
+          staff_id,
+        });
+      }
+
+      await this.prisma.task.createMany({ data: tasks });
+
+      // Integrate tasks with Microsoft To Do
+      const access_token = await this.graphService.getAccessToken(req);
+
+      // Create a To Do list for the staff if not existing
+      const toDoListId = await this.graphService.createToDoList(
+        access_token,
+        `Tasks for Case ${newCase.id}`,
+      );
+
+      // Add each task to the To Do list
+      for (const task of tasks) {
+        await this.graphService.addTaskToToDoList(
+          access_token,
+          toDoListId,
+          task.description,
+          task.due_date.toISOString(),
+        );
       }
 
       return newCase;
@@ -141,22 +166,27 @@ export class CaseService {
         throw new UnauthorizedException('User not logged in');
       }
 
-      return await this.createToDoTask('Intake interview', due_date, accessToken);
+      return await this.createToDoTaskList('Intake interview', due_date, accessToken);
+      // return await axios.get('https://graph.microsoft.com/v1.0/me/todo/lists', {
+      //   headers: {
+      //     Authorization: `Bearer ${accessToken}`,
+      //   },
+      // });
     } catch (err) {
       prismaError(err);
     }
   }
 
   // Helper function to create a Microsoft To Do task
-  private async createToDoTask(title: string, dueDate: Date, accessToken: string) {
+  private async createToDoTaskList(title: string, dueDate: Date, accessToken: string) {
     try {
       // const staff_id = 'dad674a7-4491-48ca-b4ae-68f13c384988';
       const userEndpoint = `https://graph.microsoft.com/v1.0/me/todo/lists`;
-      await axios.get(
+      await axios.post(
         userEndpoint,
-        // {
-        //   displayName: 'List created from app',
-        // },
+        {
+          displayName: 'List created from app',
+        },
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -167,4 +197,56 @@ export class CaseService {
       console.error('Error creating Microsoft To Do task:', err);
     }
   }
+
+  // async createToDoTask(
+  //   // task_id: string,
+  //   // title: string,
+  //   // start_date: Date,
+  //   // due_date: Date,
+  //   req: Request,
+  // ) {
+  //   try {
+  //     const access_token = await this.graphService.getAccessToken(req);
+  //     const list_id =
+  //       'AQMkADAwATMwMAExLTg3MzktOWJlOC0wMAItMDAKAC4AAANZo7BSXqcOTIHYAq0AyHgNAQCh4SnJem9eS48ve9VH83knAAACamYAAAA=';
+  //     const endpoint = `${appConfig.GRAPH_API_ROOT_URL}/me/todo/lists/${list_id}/tasks`;
+
+  //     const start_date = new Date('2024-11-15');
+  //     const due_date = new Date(start_date.getTime() + 3 * 24 * 60 * 60 * 1000);
+
+  //     if (!access_token) {
+  //       throw new UnauthorizedException('User not logged in');
+  //     }
+
+  //     await axios.post(
+  //       endpoint,
+  //       {
+  //         title: 'Intake interview',
+  //         // dueDateTime: due_date,
+  //         // status: 'notStarted',
+  //         // startDateTime: start_date,
+  //       },
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${access_token}`,
+  //           'Content-Type': 'application/json',
+  //         },
+  //       },
+  //     );
+
+  //     const data = await axios.get(
+  //       `${appConfig.GRAPH_API_ROOT_URL}/me/todo/lists/${list_id}/tasks`,
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${access_token}`,
+  //           'Content-Type': 'application/json',
+  //         },
+  //       },
+  //     );
+
+  //     return data.data;
+  //   } catch (err) {
+  //     prismaError(err);
+  //   }
+  // }
 }

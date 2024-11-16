@@ -43,7 +43,7 @@ export class CreateCaseDto {
     required: false,
   })
   @IsDateString()
-  start_at?: Date;
+  start_at?: string;
 
   @ApiProperty({
     example: 'asdsad343fa434',
