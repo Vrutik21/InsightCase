@@ -4,7 +4,6 @@ import Calendar from "../components/cal";
 import Navbar from "@/components/navbar";
 import Link from "next/link";
 import axios from "axios";
-const name = "";
 
 export default function Dashboard() {
   // const [showNavbar, setShowNavbar] = useState(false);
@@ -14,12 +13,15 @@ export default function Dashboard() {
   //     navigate('/createtask')
   // }
 
-  async function fetchUserData() {
+  async function fetchEventsData() {
     try {
       const response = await axios.get(
         process.env.NEXT_PUBLIC_API_URL + "/case/events",
         {
-          withCredentials: true, // Include session cookies in the request
+          withCredentials: true,
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
         }
       );
       return response.data; // User's Microsoft Graph profile data
@@ -29,18 +31,46 @@ export default function Dashboard() {
     }
   }
 
+  async function fetchUserData() {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_API_URL + "/user/me",
+        {
+          withCredentials: true,
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+      return response; // User's Microsoft Graph profile data
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      throw error;
+    }
+  }
+
   const [eventsData, setEventsData] = useState(null);
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
-    async function loadUserData() {
+    async function loadEventsData() {
       try {
-        const data = await fetchUserData();
+        const data = await fetchEventsData();
         setEventsData(data);
-        console.log(eventsData, "eventsData");
       } catch (error) {
         console.error("Failed to fetch user data", error);
       }
     }
+    async function loadUserData() {
+      try {
+        const data = await fetchUserData();
+        setUserData(data.data);
+        console.log(userData, "userData");
+      } catch (error) {
+        console.error("Failed to fetch user data", error);
+      }
+    }
+    loadEventsData();
     loadUserData();
   }, []);
 
@@ -48,13 +78,13 @@ export default function Dashboard() {
     <div className="overflow-hidden pr-9 rounded-md bg-custom-dark-indigo max-md:pr-5">
       <div className="flex gap-5 max-md:flex-col">
         <div className="flex flex-col w-[14%] max-md:ml-0 max-md:w-full">
+          <Navbar />
           <div className="flex overflow-hidden relative flex-col gap-5 justify-between items-start px-0 pb-10 w-full whitespace-nowrap rounded">
-            <Navbar />
-            {/* <img
+            <img
               loading="lazy"
               srcSet="https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=100 100w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=200 200w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=400 400w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=800 800w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=1200 1200w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=1600 1600w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=2000 2000w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
               className="object-cover absolute inset-0 size-full"
-            /> */}
+            />
             <div className="flex relative gap-2">
               <img
                 loading="lazy"
@@ -62,8 +92,10 @@ export default function Dashboard() {
                 className="object-contain shrink-0 aspect-square w-[34px]"
               />
               <div className="flex flex-col my-auto">
-                <div className="text-xs font-medium">Hannah</div>
-                <div className="self-start mt-2 text-xs">Admin</div>
+                <div className="text-xs font-medium"></div>
+                <div className="self-start mt-2 text-xs">
+                  {userData?.givenName}
+                </div>
               </div>
             </div>
             <img
@@ -108,7 +140,7 @@ export default function Dashboard() {
                       <div className="flex flex-col ml-0 w-[50%] max-md:ml-0 max-md:w-full">
                         <div className="flex z-10 flex-col self-stretch my-auto max-md:mt-10">
                           <div className="text-3xl font-medium text-white">
-                            Hello Hannah!
+                            Hello {userData?.givenName}!
                           </div>
                           <div className="text-base text-amber-300 max-md:mr-2.5">
                             It’s good to see you again.

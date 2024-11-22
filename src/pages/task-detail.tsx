@@ -28,7 +28,9 @@ export default function TaskDetail() {
 
   const fetchTaskData = async () => {
     try {
-      const response = await fetch("http://localhost:3000/task");
+      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/task", {
+        headers: { "ngrok-skip-browser-warning": "true" },
+      });
       const data = await response.json();
 
       // Filter tasks by case_id if caseId is provided in the URL

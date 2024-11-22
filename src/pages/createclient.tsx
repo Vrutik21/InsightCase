@@ -4,9 +4,9 @@ import axios from "axios";
 export default function MyComponent() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); // Prevent default form submission
-    
+
     // Get form data
-    const formData = new FormData(e.target as HTMLFormElement); 
+    const formData = new FormData(e.target as HTMLFormElement);
     const data = {
       referenceId: formData.get("referenceId"),
       firstName: formData.get("firstName"),
@@ -20,14 +20,17 @@ export default function MyComponent() {
 
     try {
       // Send data using Axios
-      const response = await axios.post('https://a255-137-207-232-219.ngrok-free.app/client', data, {
-        headers: {
-          'Content-Type': 'application/json', // Set content type to JSON
-          'Authorization': 'Bearer yourTokenHere', // Optional: Add auth token if needed
-          'X-Custom-Header': 'YourHeaderValue', // Optional: any custom headers
+      const response = await axios.post(
+        process.env.NEXT_PUBLIC_API_URL + "/client",
+        data,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
         }
-      });
-      console.log(response)
+      );
+      console.log(response);
       if (response.status === 200) {
         console.log("Data submitted successfully!");
       } else {
@@ -39,7 +42,10 @@ export default function MyComponent() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex overflow-hidden flex-col px-9 pt-6 pb-9 rounded-2xl bg-zinc-700 max-w-[867px] max-md:px-5">
+    <form
+      onSubmit={handleSubmit}
+      className="flex overflow-hidden flex-col px-9 pt-6 pb-9 rounded-2xl bg-zinc-700 max-w-[867px] max-md:px-5"
+    >
       <div className="max-md:max-w-full">
         <div className="flex gap-5 max-md:flex-col">
           <div className="flex flex-col w-[33%] max-md:ml-0 max-md:w-full">
@@ -128,7 +134,9 @@ export default function MyComponent() {
         </div>
       </div>
       <div className="self-center px-14 py-3.5 mt-16 max-w-full text-base font-bold text-white whitespace-nowrap bg-amber-300 rounded-lg shadow-[0px_4px_10px_rgba(77,72,151,0.3)] w-[157px] max-md:px-5 max-md:mt-10">
-        <button type="submit" className="w-full h-full">Save</button>
+        <button type="submit" className="w-full h-full">
+          Save
+        </button>
       </div>
     </form>
   );

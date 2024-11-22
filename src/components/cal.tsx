@@ -30,6 +30,9 @@ const Calendar: React.FC = () => {
           process.env.NEXT_PUBLIC_API_URL + "/case/events",
           {
             withCredentials: true,
+            headers: {
+              "ngrok-skip-browser-warning": "true",
+            },
           }
         );
         const fetchedEvents = response.data.map((event: any) => ({

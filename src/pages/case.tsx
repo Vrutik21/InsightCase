@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Link from "next/link";
+import axios from "axios";
 // import { TableDataRow } from "@/types"; // Import the type interface
 
 interface TableDataRow {
@@ -73,24 +74,36 @@ export default function CaseTable() {
   const fetchData = async () => {
     try {
       // Fetch cases for the table
-      const caseResponse = await fetch("http://localhost:3000/case");
-      const caseData = await caseResponse.json();
-      setTableData(caseData);
+      const caseResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/case`,
+        {
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+      setTableData(caseResponse.data);
 
       // Fetch clients for dropdown
-      const clientResponse = await fetch("http://localhost:3000/client");
-      const clientData = await clientResponse.json();
-      setClients(clientData);
+      const clientResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/client`,
+        { headers: { "ngrok-skip-browser-warning": "true" } }
+      );
+      setClients(clientResponse.data);
 
       // Fetch staff for dropdown
-      const staffResponse = await fetch("http://localhost:3000/user");
-      const staffData = await staffResponse.json();
-      setStaff(staffData);
+      const staffResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user`,
+        { headers: { "ngrok-skip-browser-warning": "true" } }
+      );
+      setStaff(staffResponse.data);
 
       // Fetch services for dropdown
-      const serviceResponse = await fetch("http://localhost:3000/service");
-      const serviceData = await serviceResponse.json();
-      setServices(serviceData);
+      const serviceResponse = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/service`,
+        { headers: { "ngrok-skip-browser-warning": "true" } }
+      );
+      setServices(serviceResponse.data);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -130,16 +143,20 @@ export default function CaseTable() {
   const handleFormSubmit = async (event: any) => {
     event.preventDefault();
     try {
-      await fetch("http://localhost:3000/case", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/case`,
+        {
           ...formData,
           case_manager_id: "2a697b79-62f1-4e1c-ab79-e0245619f85c",
-        }),
-      });
+        },
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
 
       console.log(formData, "formData");
       // After submission, close modal and refresh case table
@@ -169,7 +186,7 @@ export default function CaseTable() {
             <div className="my-auto text-2xl">Case Details</div>
             <button
               onClick={handleAddCaseClick}
-              className="flex items-center gap-8 px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo hover:bg-indigo-600 transition-colors"
+              className="flex items-center gap-8 px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo"
             >
               <div className="self-stretch my-auto">Add Case</div>
               <img
@@ -237,10 +254,10 @@ export default function CaseTable() {
                       </TableCell>
                       <TableCell sx={{ color: "white" }}>
                         <Link
-                          href={`/tasks/${row.id}`}
+                          href={`/task-detail`}
                           className="underline text-blue-400"
                         >
-                          {row.task_count || 0} Tasks
+                          {row._count.tasks || 0} Tasks
                         </Link>
                       </TableCell>
                     </TableRow>
@@ -293,7 +310,7 @@ export default function CaseTable() {
                   className="bg-gray-700 text-gray-300 rounded-md"
                 >
                   {staff
-                    .filter((item) => item.name != "test")
+                    ?.filter((item) => item.name != "test")
                     .map((staffMember) => (
                       <MenuItem key={staffMember.id} value={staffMember.id}>
                         {staffMember.name}
