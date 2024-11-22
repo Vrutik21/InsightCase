@@ -1,25 +1,55 @@
-import React, {useState} from "react";
+import React, { useEffect, useState } from "react";
 // import { Calendar } from "@/components/ui/calendar";
-import Calendar from  '../components/cal';
+import Calendar from "../components/cal";
 import Navbar from "@/components/navbar";
-import Link from 'next/link';
+import Link from "next/link";
+import axios from "axios";
 const name = "";
 
-
-
 export default function Dashboard() {
-    // const [showNavbar, setShowNavbar] = useState(false);
-    // const navigate= useNavigate();
-    // const handleCreateTask=()=>{
-    //     // setShowNavbar((prevShowNavbar) => !prevShowNavbar);
-    //     navigate('/createtask')
-    // }
+  // const [showNavbar, setShowNavbar] = useState(false);
+  // const navigate= useNavigate();
+  // const handleCreateTask=()=>{
+  //     // setShowNavbar((prevShowNavbar) => !prevShowNavbar);
+  //     navigate('/createtask')
+  // }
+
+  async function fetchUserData() {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_API_URL + "/case/events",
+        {
+          withCredentials: true, // Include session cookies in the request
+        }
+      );
+      return response.data; // User's Microsoft Graph profile data
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      throw error;
+    }
+  }
+
+  const [eventsData, setEventsData] = useState(null);
+
+  useEffect(() => {
+    async function loadUserData() {
+      try {
+        const data = await fetchUserData();
+        setEventsData(data);
+        console.log(eventsData, "eventsData");
+      } catch (error) {
+        console.error("Failed to fetch user data", error);
+      }
+    }
+    loadUserData();
+  }, []);
+
   return (
     <div className="overflow-hidden pr-9 rounded-md bg-custom-dark-indigo max-md:pr-5">
       <div className="flex gap-5 max-md:flex-col">
         <div className="flex flex-col w-[14%] max-md:ml-0 max-md:w-full">
           <div className="flex overflow-hidden relative flex-col gap-5 justify-between items-start px-0 pb-10 w-full whitespace-nowrap rounded">
-            <Navbar/>
+            <Navbar />
             {/* <img
               loading="lazy"
               srcSet="https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=100 100w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=200 200w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=400 400w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=800 800w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=1200 1200w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=1600 1600w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=2000 2000w, https://cdn.builder.io/api/v1/image/assets/TEMP/cdbbb9db940bc2c1cd6d17de807b634017bb83046642e4b70f8425e50eef3528?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
@@ -57,18 +87,18 @@ export default function Dashboard() {
               </div> */}
               <Link href="/createtask" passHref>
                 <button
-                    // onClick={handleCreateTask}
-                    className="flex gap-8 items-center px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo"
-                    >
-                    <div className="self-stretch my-auto">Create Task</div>
-                    <img
-                        loading="lazy"
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/abf0b717729f936f37d6e7bd3471cd624ff26eefb03ede9842209d5507e349cc?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
-                        className="object-contain shrink-0 self-stretch my-auto w-8 aspect-square"
-                    />
-                    </button>
-                </Link>
-                {/* {showNavbar && <Createtask />} */}
+                  // onClick={handleCreateTask}
+                  className="flex gap-8 items-center px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo"
+                >
+                  <div className="self-stretch my-auto">Create Task</div>
+                  <img
+                    loading="lazy"
+                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/abf0b717729f936f37d6e7bd3471cd624ff26eefb03ede9842209d5507e349cc?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+                    className="object-contain shrink-0 self-stretch my-auto w-8 aspect-square"
+                  />
+                </button>
+              </Link>
+              {/* {showNavbar && <Createtask />} */}
             </div>
             <div className="mt-9 w-full max-md:max-w-full">
               <div className="flex gap-5 max-md:flex-col">
@@ -99,7 +129,7 @@ export default function Dashboard() {
                   <div className="flex overflow-hidden flex-col pt-7 w-full rounded-2xl bg-custom-light-indigo max-md:mt-10">
                     <div className="flex flex-col px-6 max-md:px-5">
                       <div className="self-start text-3xl font-semibold leading-none text-white">
-                        03
+                        {eventsData?.length}
                       </div>
                       <div className="mt-2.5 text-lg leading-none text-stone-300">
                         Upcoming Task
@@ -112,7 +142,7 @@ export default function Dashboard() {
                   <div className="flex overflow-hidden flex-col pt-7 w-full rounded-2xl bg-custom-light-indigo max-md:mt-10">
                     <div className="flex flex-col items-start px-6 max-md:px-5">
                       <div className="text-3xl font-semibold leading-none text-white">
-                        07
+                        {eventsData?.length}
                       </div>
                       <div className="mt-2.5 text-lg leading-none text-stone-300">
                         Total Task
@@ -125,8 +155,7 @@ export default function Dashboard() {
             </div>
 
             {/* calendar class */}
-            <Calendar
-            />
+            <Calendar />
           </div>
         </div>
       </div>

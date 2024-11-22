@@ -160,258 +160,230 @@ export default function CaseTable() {
   };
 
   return (
-    <div className="overflow-hidden  pr-9 rounded-md bg-custom-dark-indigo max-md:pr-5">
+    <div className="overflow-hidden pr-9 rounded-md bg-custom-dark-indigo max-md:pr-5">
       <div className="flex gap-5 max-md:flex-col">
         <Navbar />
-        <div className="flex  pt-10 flex-col ml-5 w-[84%] max-md:ml-0 max-md:w-full">
-          <div className="flex justify-between gap-10 items-center w-full font-semibold text-white max-md:max-w-full">
+        <div className="flex flex-col ml-5 w-[83%] max-md:ml-0 max-md:w-full">
+          {/* Header */}
+          <div className="flex justify-between gap-10 items-center w-full font-semibold text-white max-md:max-w-full mt-10">
             <div className="my-auto text-2xl">Case Details</div>
             <button
-              // onClick={handleCreateTask}
-              className="flex gap-8 items-center px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo"
               onClick={handleAddCaseClick}
+              className="flex items-center gap-8 px-4 py-3.5 text-sm rounded-lg bg-custom-light-indigo hover:bg-indigo-600 transition-colors"
             >
-              <div className="self-stretch my-auto">Create Case</div>
+              <div className="self-stretch my-auto">Add Case</div>
               <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/abf0b717729f936f37d6e7bd3471cd624ff26eefb03ede9842209d5507e349cc?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+                src="https://cdn.builder.io/api/v1/image/assets/TEMP/abf0b717729f936f37d6e7bd3471cd624ff26eefb03ede9842209d5507e349cc"
                 className="object-contain shrink-0 self-stretch my-auto w-8 aspect-square"
+                alt="Add Case"
               />
             </button>
           </div>
 
-          <TableContainer
-            component={Paper}
-            style={{ maxHeight: "400px", overflow: "auto" }}
-            sx={{ backgroundColor: "#21222d" }}
-          >
-            <Table
-              sx={{ minWidth: 650, backgroundColor: "#21222d" }}
-              aria-label="simple table"
-              stickyHeader
+          {/* Table */}
+          <div className="flex overflow-hidden flex-col mt-4 w-full rounded-lg bg-custom-light-indigo min-h-[777px] max-md:max-w-full">
+            <TableContainer
+              component={Paper}
+              style={{ maxHeight: "400px", overflow: "auto" }}
+              sx={{ backgroundColor: "#21222d" }}
             >
-              <TableHead>
-                <TableRow>
-                  <TableCell
-                    sx={{ color: "white", backgroundColor: "#21222d" }}
-                  >
-                    #
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", backgroundColor: "#21222d" }}
-                  >
-                    Case Manager Name
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", backgroundColor: "#21222d" }}
-                  >
-                    Staff Name
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", backgroundColor: "#21222d" }}
-                  >
-                    Service Name
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", backgroundColor: "#21222d" }}
-                  >
-                    Client Name
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", backgroundColor: "#21222d" }}
-                  >
-                    Region
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", backgroundColor: "#21222d" }}
-                  >
-                    Status
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", backgroundColor: "#21222d" }}
-                  >
-                    Start Date
-                  </TableCell>
-                  <TableCell
-                    sx={{ color: "white", backgroundColor: "#21222d" }}
-                  >
-                    Number of Tasks
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tableData.map((row, index) => (
-                  <TableRow key={index} sx={{ backgroundColor: "#21222d" }}>
-                    <TableCell sx={{ color: "white" }}>{index + 1}</TableCell>
-                    <TableCell sx={{ color: "white" }}>
-                      {row.case_manager.name}
-                    </TableCell>
-                    <TableCell sx={{ color: "white" }}>
-                      {row.staff.name}
-                    </TableCell>
-                    <TableCell sx={{ color: "white" }}>
-                      {row.service.name}
-                    </TableCell>
-                    <TableCell
-                      sx={{ color: "white" }}
-                    >{`${row.client.first_name} ${row.client.last_name}`}</TableCell>
-                    <TableCell sx={{ color: "white" }}>{row.region}</TableCell>
-                    <TableCell sx={{ color: "white" }}>{row.status}</TableCell>
-                    <TableCell sx={{ color: "white" }}>
-                      {new Date(row.start_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        timeZone: "UTC",
-                      })}
-                    </TableCell>
-                    <TableCell sx={{ color: "white" }}>
-                      <Link href={`/task-detail`} className="underline">
-                        {row._count.tasks} Tasks
-                      </Link>
-                    </TableCell>
+              <Table stickyHeader sx={{ minWidth: 650 }}>
+                <TableHead>
+                  <TableRow>
+                    {[
+                      "#",
+                      "Case Manager Name",
+                      "Staff Name",
+                      "Service Name",
+                      "Client Name",
+                      "Region",
+                      "Status",
+                      "Start Date",
+                      "Number of Tasks",
+                    ].map((header, index) => (
+                      <TableCell
+                        key={index}
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        {header}
+                      </TableCell>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-
-          {/* Modal for Add Case Form */}
-          <Modal open={isModalOpen} onClose={handleCloseModal}>
-            <div className="flex justify-center items-center min-h-screen bg-opacity-60 bg-gray-900">
-              <form
-                onSubmit={handleFormSubmit}
-                className="relative bg-gray-800 p-8 rounded-lg shadow-lg max-w-2xl w-full"
-              >
-                {/* Close button */}
-                <IconButton
-                  onClick={handleCloseModal}
-                  className="absolute top-4 right-4 text-gray-400 hover:text-white"
-                >
-                  <CloseIcon />
-                </IconButton>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel className="text-gray-300">
-                      Client Name
-                    </InputLabel>
-                    <Select
-                      name="client_id"
-                      value={formData.client_id}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 text-gray-300 rounded-md"
-                    >
-                      {clients.map((client) => (
-                        <MenuItem key={client.id} value={client.id}>
-                          {client.first_name} {client.last_name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel className="text-gray-300">Staff</InputLabel>
-                    <Select
-                      name="staff_id"
-                      value={formData.staff_id}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 text-gray-300 rounded-md"
-                    >
-                      {staff
-                        .filter((item) => item.name != "test")
-                        .map((staffMember) => (
-                          <MenuItem key={staffMember.id} value={staffMember.id}>
-                            {staffMember.name}
-                          </MenuItem>
-                        ))}
-                    </Select>
-                  </FormControl>
-
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel className="text-gray-300">Service</InputLabel>
-                    <Select
-                      name="service_id"
-                      value={formData.service_id}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 text-gray-300 rounded-md"
-                    >
-                      {services.map((service) => (
-                        <MenuItem key={service.id} value={service.id}>
-                          {service.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel className="text-gray-300">Region</InputLabel>
-                    <Select
-                      name="region"
-                      value={formData.region}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 text-gray-300 rounded-md"
-                    >
-                      {REGIONS.map((region) => (
-                        <MenuItem key={region} value={region}>
-                          {region}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <FormControl fullWidth margin="normal">
-                    <InputLabel className="text-gray-300">Status</InputLabel>
-                    <Select
-                      name="status"
-                      value={formData.status}
-                      onChange={handleInputChange}
-                      className="bg-gray-700 text-gray-300 rounded-md"
-                    >
-                      {STATUSES.map((status) => (
-                        <MenuItem key={status} value={status}>
-                          {status}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <TextField
-                    fullWidth
-                    margin="normal"
-                    label="Start At"
-                    type="date"
-                    name="start_at"
-                    value={formData.start_at}
-                    onChange={handleInputChange}
-                    InputLabelProps={{
-                      shrink: true,
-                      className: "text-gray-300",
-                    }}
-                    InputProps={{
-                      className: "bg-gray-700 text-gray-300 rounded-md",
-                    }}
-                  />
-                </div>
-
-                {/* Centered Save Button */}
-                <div className="flex justify-center mt-6">
-                  <Button
-                    variant="contained"
-                    type="submit"
-                    className="bg-yellow-500 text-gray-900 font-semibold rounded-md hover:bg-yellow-600"
-                    style={{
-                      width: "120px",
-                    }}
-                  >
-                    Save
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </Modal>
+                </TableHead>
+                <TableBody>
+                  {tableData.map((row, index) => (
+                    <TableRow key={row.id} sx={{ backgroundColor: "#21222d" }}>
+                      <TableCell sx={{ color: "white" }}>{index + 1}</TableCell>
+                      <TableCell sx={{ color: "white" }}>
+                        {row.case_manager?.name || "N/A"}
+                      </TableCell>
+                      <TableCell sx={{ color: "white" }}>
+                        {row.staff?.name || "N/A"}
+                      </TableCell>
+                      <TableCell sx={{ color: "white" }}>
+                        {row.service?.name || "N/A"}
+                      </TableCell>
+                      <TableCell sx={{ color: "white" }}>
+                        {row.client?.name || "N/A"}
+                      </TableCell>
+                      <TableCell sx={{ color: "white" }}>
+                        {row.region}
+                      </TableCell>
+                      <TableCell sx={{ color: "white" }}>
+                        {row.status}
+                      </TableCell>
+                      <TableCell sx={{ color: "white" }}>
+                        {new Date(row.start_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell sx={{ color: "white" }}>
+                        <Link
+                          href={`/tasks/${row.id}`}
+                          className="underline text-blue-400"
+                        >
+                          {row.task_count || 0} Tasks
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </div>
         </div>
       </div>
+
+      {/* Modal for Add Case Form */}
+      <Modal open={isModalOpen} onClose={handleCloseModal}>
+        <div className="flex justify-center items-center min-h-screen bg-opacity-60 bg-gray-900">
+          <form
+            onSubmit={handleFormSubmit}
+            className="relative bg-gray-800 p-8 rounded-lg shadow-lg max-w-2xl w-full"
+          >
+            {/* Close button */}
+            <IconButton
+              onClick={handleCloseModal}
+              className="absolute top-0 right-0 text-gray-400 hover:text-white"
+            >
+              <CloseIcon />
+            </IconButton>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormControl fullWidth margin="normal">
+                <InputLabel className="text-gray-300">Client Name</InputLabel>
+                <Select
+                  name="client_id"
+                  value={formData.client_id}
+                  onChange={handleInputChange}
+                  className="bg-gray-700 text-gray-300 rounded-md"
+                >
+                  {clients.map((client) => (
+                    <MenuItem key={client.id} value={client.id}>
+                      {client.first_name} {client.last_name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel className="text-gray-300">Staff</InputLabel>
+                <Select
+                  name="staff_id"
+                  value={formData.staff_id}
+                  onChange={handleInputChange}
+                  className="bg-gray-700 text-gray-300 rounded-md"
+                >
+                  {staff
+                    .filter((item) => item.name != "test")
+                    .map((staffMember) => (
+                      <MenuItem key={staffMember.id} value={staffMember.id}>
+                        {staffMember.name}
+                      </MenuItem>
+                    ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel className="text-gray-300">Service</InputLabel>
+                <Select
+                  name="service_id"
+                  value={formData.service_id}
+                  onChange={handleInputChange}
+                  className="bg-gray-700 text-gray-300 rounded-md"
+                >
+                  {services.map((service) => (
+                    <MenuItem key={service.id} value={service.id}>
+                      {service.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel className="text-gray-300">Region</InputLabel>
+                <Select
+                  name="region"
+                  value={formData.region}
+                  onChange={handleInputChange}
+                  className="bg-gray-700 text-gray-300 rounded-md"
+                >
+                  {REGIONS.map((region) => (
+                    <MenuItem key={region} value={region}>
+                      {region}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <FormControl fullWidth margin="normal">
+                <InputLabel className="text-gray-300">Status</InputLabel>
+                <Select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  className="bg-gray-700 text-gray-300 rounded-md"
+                >
+                  {STATUSES.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Start At"
+                type="date"
+                name="start_at"
+                value={formData.start_at}
+                onChange={handleInputChange}
+                InputLabelProps={{
+                  shrink: true,
+                  className: "text-gray-300",
+                }}
+                InputProps={{
+                  className: "bg-gray-700 text-gray-300 rounded-md",
+                }}
+              />
+            </div>
+
+            {/* Centered Save Button */}
+            <div className="flex justify-center mt-6">
+              <Button
+                variant="contained"
+                type="submit"
+                className="bg-yellow-500 text-gray-900 font-semibold rounded-md hover:bg-yellow-600"
+                style={{
+                  width: "120px",
+                }}
+              >
+                Save
+              </Button>
+            </div>
+          </form>
+        </div>
+      </Modal>
     </div>
   );
 }

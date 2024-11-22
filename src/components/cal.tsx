@@ -1,12 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import {
-  formatDate,
-  DateSelectArg,
-  EventClickArg,
-  EventApi,
-} from "@fullcalendar/core";
+import axios from "axios";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -19,35 +14,56 @@ import {
 } from "@/components/ui/dialog";
 
 const Calendar: React.FC = () => {
-  const [currentEvents, setCurrentEvents] = useState<EventApi[]>([]);
+  const [currentEvents, setCurrentEvents] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] =
+    useState<boolean>(false);
   const [newEventTitle, setNewEventTitle] = useState<string>("");
-  const [selectedDate, setSelectedDate] = useState<DateSelectArg | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [eventsForSelectedDate, setEventsForSelectedDate] = useState<any[]>([]);
 
+  // Fetch data from the API
   useEffect(() => {
-    // Load events from local storage when the component mounts
-    if (typeof window !== "undefined") {
-      const savedEvents = localStorage.getItem("events");
-      if (savedEvents) {
-        setCurrentEvents(JSON.parse(savedEvents));
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(
+          process.env.NEXT_PUBLIC_API_URL + "/case/events",
+          {
+            withCredentials: true,
+          }
+        );
+        const fetchedEvents = response.data.map((event: any) => ({
+          id: event.id,
+          title: event.title,
+          start: event.startDate,
+          end: event.endDate,
+          location: event.location,
+          organizer: event.organizer,
+        }));
+        setCurrentEvents(fetchedEvents);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
       }
-    }
+    };
+
+    fetchUserData();
   }, []);
 
-  useEffect(() => {
-    // Save events to local storage whenever they change
-    if (typeof window !== "undefined") {
-      localStorage.setItem("events", JSON.stringify(currentEvents));
-    }
-  }, [currentEvents]);
+  const handleDateClick = (selected: any) => {
+    const selectedDateStr = selected.startStr;
+    setSelectedDate(selectedDateStr);
 
-  const handleDateClick = (selected: DateSelectArg) => {
-    setSelectedDate(selected);
-    setIsDialogOpen(true);
+    // Filter events for the clicked date
+    const filteredEvents = currentEvents.filter((event) => {
+      const eventDate = new Date(event.start).toISOString().split("T")[0];
+      return eventDate === selectedDateStr;
+    });
+
+    setEventsForSelectedDate(filteredEvents);
+    setIsDetailsDialogOpen(true);
   };
 
-  const handleEventClick = (selected: EventClickArg) => {
-    // Prompt user for confirmation before deleting an event
+  const handleEventClick = (selected: any) => {
     if (
       window.confirm(
         `Are you sure you want to delete the event "${selected.event.title}"?`
@@ -65,8 +81,8 @@ const Calendar: React.FC = () => {
   const handleAddEvent = (e: React.FormEvent) => {
     e.preventDefault();
     if (newEventTitle && selectedDate) {
-      const calendarApi = selectedDate.view.calendar; // Get the calendar API instance.
-      calendarApi.unselect(); // Unselect the date range.
+      const calendarApi = selectedDate.view.calendar;
+      calendarApi.unselect();
 
       const newEvent = {
         id: `${selectedDate.start.toISOString()}-${newEventTitle}`,
@@ -82,93 +98,115 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div>
-      <div className="flex w-full px-10 justify-start items-start gap-8">
-        <div className="w-3/12">
-          <div className="py-10 text-2xl font-extrabold px-7">
+    <div className="p-6 mt-10 max-w-5xl mx-auto bg-gray-900 text-gray-100 shadow-md rounded-lg">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-gray-800 p-4 rounded-md shadow-sm">
+          <h2 className="text-lg font-semibold mb-4 text-white">
             Calendar Events
-          </div>
-          <ul className="space-y-4">
-            {currentEvents.length <= 0 && (
-              <div className="italic text-center text-gray-400">
+          </h2>
+          <ul className="space-y-2">
+            {currentEvents.length === 0 && (
+              <li className="text-gray-400 italic text-center">
                 No Events Present
-              </div>
+              </li>
             )}
-
-            {currentEvents.length > 0 &&
-              currentEvents.map((event: EventApi) => (
-                <li
-                  className="border border-gray-200 shadow px-4 py-2 rounded-md text-blue-800 "
-                  key={event.id}
-                >
-                  {event.title}
-                  <br />
-                  <label className="text-slate-950">
-                    {formatDate(event.start!, {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    })}{" "}
-                    {/* Format event start date */}
-                  </label>
-                </li>
-              ))}
+            {currentEvents.map((event) => (
+              <li
+                key={event.id}
+                className="border border-gray-700 rounded-lg p-3 text-sm text-blue-400"
+              >
+                {event.title}
+                <div className="text-gray-400">
+                  {new Date(event.start).toLocaleString()}
+                </div>
+              </li>
+            ))}
           </ul>
         </div>
 
-        <div className="w-9/12 mt-8">
+        <div className="col-span-2">
           <FullCalendar
-            height={"85vh"}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]} // Initialize calendar with required plugins.
+            height={"70vh"}
+            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek",
-            }} // Set header toolbar options.
-            initialView="dayGridMonth" // Initial view mode of the calendar.
-            editable={true} // Allow events to be edited.
-            selectable={true} // Allow dates to be selectable.
-            selectMirror={true} // Mirror selections visually.
-            dayMaxEvents={true} // Limit the number of events displayed per day.
-            select={handleDateClick} // Handle date selection to create new events.
-            eventClick={handleEventClick} // Handle clicking on events (e.g., to delete them).
-            eventsSet={(events) => setCurrentEvents(events)} // Update state with current events whenever they change.
-            initialEvents={
-              typeof window !== "undefined"
-                ? JSON.parse(localStorage.getItem("events") || "[]")
-                : []
-            } // Initial events loaded from local storage.
+              right: "dayGridMonth,timeGridWeek,timeGridDay",
+            }}
+            initialView="dayGridMonth"
+            editable={true}
+            selectable={true}
+            selectMirror={true}
+            dayMaxEvents={true}
+            select={handleDateClick}
+            eventClick={handleEventClick}
+            events={currentEvents}
+            contentHeight="auto"
           />
         </div>
       </div>
 
-      {/* Dialog for adding new events */}
+      {/* Add Event Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="bg-gray-800 text-gray-100">
           <DialogHeader>
-            <DialogTitle>Add New Event Details</DialogTitle>
+            <DialogTitle>Add New Event</DialogTitle>
           </DialogHeader>
-          <form className="space-x-5 mb-4" onSubmit={handleAddEvent}>
+          <form onSubmit={handleAddEvent} className="flex flex-col space-y-4">
             <input
               type="text"
               placeholder="Event Title"
               value={newEventTitle}
-              onChange={(e) => setNewEventTitle(e.target.value)} // Update new event title as the user types.
+              onChange={(e) => setNewEventTitle(e.target.value)}
               required
-              className="border border-gray-200 p-3 rounded-md text-lg"
+              className="border border-gray-700 p-2 rounded-md bg-gray-700 text-white"
             />
             <button
-              className="bg-green-500 text-white p-3 mt-5 rounded-md"
+              className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition"
               type="submit"
             >
-              Add
-            </button>{" "}
-            {/* Button to submit new event */}
+              Add Event
+            </button>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Event Details Dialog */}
+      <Dialog open={isDetailsDialogOpen} onOpenChange={setIsDetailsDialogOpen}>
+        <DialogContent className="bg-gray-800 text-gray-100">
+          <DialogHeader>
+            <DialogTitle>Events on {selectedDate}</DialogTitle>
+          </DialogHeader>
+          {eventsForSelectedDate.length > 0 ? (
+            <ul className="space-y-4">
+              {eventsForSelectedDate.map((event) => (
+                <li
+                  key={event.id}
+                  className="border border-gray-700 rounded-lg p-4"
+                >
+                  <h3 className="font-bold text-blue-400">{event.title}</h3>
+                  <p className="text-sm text-gray-300">
+                    Organizer: {event.organizer}
+                  </p>
+                  <p className="text-sm text-gray-300">
+                    Location: {event.location}
+                  </p>
+                  <p className="text-sm text-gray-300">
+                    Start: {new Date(event.start).toLocaleString()}
+                  </p>
+                  <p className="text-sm text-gray-300">
+                    End: {new Date(event.end).toLocaleString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="italic text-gray-400">No events on this date.</p>
+          )}
         </DialogContent>
       </Dialog>
     </div>
   );
 };
 
-export default Calendar; // Export the Calendar component for use in other parts of the application.
+export default Calendar;

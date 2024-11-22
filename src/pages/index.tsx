@@ -1,20 +1,10 @@
-import Image from "next/image";
-import localFont from "next/font/local";
-import Dashboard from './dashboard';
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import Dashboard from "./dashboard";
+// import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function Home() {
   return (
-    <Dashboard/>
+    // <ProtectedRoute>
+    <Dashboard />
+    // </ProtectedRoute>
   );
 }
