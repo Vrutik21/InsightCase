@@ -60,7 +60,7 @@ export default function Navbar() {
   return (
     <div className="flex overflow-hidden flex-col pb-28 rounded bg-custom-light-indigo max-w-[213px] shadow-[10px_11px_72px_rgba(0,0,0,0.24)]">
       <div className="flex relative flex-col items-start px-4 pt-12 pb-28 w-full aspect-[0.233]">
-        <div className="flex relative gap-1.5 text-xs font-semibold leading-4 text-gray-200">
+        <div className="flex relative gap-1.5 text-sm font-semibold leading-4 text-gray-200 ml-2">
           <img
             loading="lazy"
             srcSet="https://cdn.builder.io/api/v1/image/assets/TEMP/0edc8bfc8f1149baac2c31ce449116efa0a2d38935ca1554c9e6ec50223560e3"
@@ -79,8 +79,8 @@ export default function Navbar() {
         >
           <img
             loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/3d14be8d3fdc114e28ae55fbc5dd8fce120d2c60430fbe22e5c0e0becbdbbfaf"
-            className="object-contain shrink-0 aspect-[0.72] w-[13px]"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/8eb521e107e1aff25842d6dea993c2003f69da71885118e8c8aa1666e3145ee3?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+            className="object-contain shrink-0 aspect-[0.72] w-[13px] text-white"
           />
           <button className="my-auto bg-transparent text-white border-none cursor-pointer">
             Task
@@ -141,12 +141,47 @@ export default function Navbar() {
           </div>
         )}
 
+
         {/* Bottom Image */}
         <img
           loading="lazy"
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/026ff0ce6178839c06ee43ae4f8850214c24c1fb07725312719f6a47825f4681"
           className="object-contain self-stretch mb-0 w-full aspect-[166.67] mt-[461px]"
         />
+        <div className="flex relative gap-2 mt-10">
+              {/* <img
+                loading="lazy"
+                srcSet="https://cdn.builder.io/api/v1/image/assets/TEMP/e3934cf0f8c790c39e2a80f4f4afe3fc522fccc146bc75ed3d8f5b01e7f4d3b9?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=100 100w, https://cdn.builder.io/api/v1/image/assets/TEMP/e3934cf0f8c790c39e2a80f4f4afe3fc522fccc146bc75ed3d8f5b01e7f4d3b9?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=200 200w, https://cdn.builder.io/api/v1/image/assets/TEMP/e3934cf0f8c790c39e2a80f4f4afe3fc522fccc146bc75ed3d8f5b01e7f4d3b9?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=400 400w, https://cdn.builder.io/api/v1/image/assets/TEMP/e3934cf0f8c790c39e2a80f4f4afe3fc522fccc146bc75ed3d8f5b01e7f4d3b9?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=800 800w, https://cdn.builder.io/api/v1/image/assets/TEMP/e3934cf0f8c790c39e2a80f4f4afe3fc522fccc146bc75ed3d8f5b01e7f4d3b9?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=1200 1200w, https://cdn.builder.io/api/v1/image/assets/TEMP/e3934cf0f8c790c39e2a80f4f4afe3fc522fccc146bc75ed3d8f5b01e7f4d3b9?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=1600 1600w, https://cdn.builder.io/api/v1/image/assets/TEMP/e3934cf0f8c790c39e2a80f4f4afe3fc522fccc146bc75ed3d8f5b01e7f4d3b9?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c&width=2000 2000w, https://cdn.builder.io/api/v1/image/assets/TEMP/e3934cf0f8c790c39e2a80f4f4afe3fc522fccc146bc75ed3d8f5b01e7f4d3b9?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+                className="object-contain shrink-0 aspect-square w-[34px]"
+              /> */}
+              <section class="flex gap-8 whitespace-nowrap max-w-[172px] text-zinc-100" aria-label="User Profile">
+                <article class="flex gap-2">
+                  <img
+                    loading="lazy"
+                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/e3934cf0f8c790c39e2a80f4f4afe3fc522fccc146bc75ed3d8f5b01e7f4d3b9?placeholderIfAbsent=true&apiKey=70c5f0c08e304d4b9d8f08ceb2f4dd6f"
+                    class="object-contain shrink-0 aspect-square w-[34px]"
+                    alt=""
+                  />
+                  <div class="flex flex-col my-auto">
+                    <h2 class="text-sm font-semibold font-medium">Hello there!</h2>
+                    {/* <p class="self-start mt-2 text-xs">Admin</p> */}
+                  </div>
+                </article>
+                <button 
+                  class="my-auto"
+                  aria-label="User menu"
+                  tabindex="0"
+                >
+                  <img
+                    loading="lazy"
+                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/0a9a3499af352b3c3e90e3a0188b8f2c1279a97edc26febb3dd48dd0f455df8b?placeholderIfAbsent=true&apiKey=70c5f0c08e304d4b9d8f08ceb2f4dd6f"
+                    class="object-contain shrink-0 aspect-square w-[15px]"
+                    alt=""
+                  />
+                </button>
+              </section>
+
+            </div>
       </div>
     </div>
   );
