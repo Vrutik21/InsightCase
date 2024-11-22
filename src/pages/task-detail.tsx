@@ -52,7 +52,7 @@ export default function TaskDetail() {
     <div className="overflow-hidden pr-9 rounded-md bg-custom-dark-indigo max-md:pr-5">
       <div className="flex gap-5 max-md:flex-col">
         <Navbar />
-        <div className="flex pt-10 flex-col ml-5 w-[84%] max-md:ml-0 max-md:w-full">
+        <div className="flex ml-60 pt-10 flex-col ml-5 w-[84%] max-md:ml-0 max-md:w-full">
           <div className="flex justify-between gap-10 items-center w-full font-semibold text-white max-md:max-w-full">
             <div className="my-auto text-2xl">Task Details</div>
             <button

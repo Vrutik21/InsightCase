@@ -203,7 +203,7 @@ export default function CaseTable() {
     <div className="overflow-hidden pr-9 rounded-md bg-custom-dark-indigo max-md:pr-5">
       <div className="flex gap-5 max-md:flex-col">
         <Navbar />
-        <div className="flex pt-10 flex-col ml-5 w-[84%] max-md:ml-0 max-md:w-full">
+        <div className="flex pt-10 ml-60 flex-col ml-5 w-[84%] max-md:ml-0 max-md:w-full">
           {/* Header section */}
           <div className="flex justify-between gap-10 items-center w-full font-semibold text-white max-md:max-w-full">
             <div className="my-auto text-2xl">Client Details</div>
@@ -222,110 +222,110 @@ export default function CaseTable() {
           </div>
 
           <div className="flex overflow-hidden flex-col mt-4 w-full rounded-lg bg-custom-light-indigo min-h-[777px] max-md:max-w-full">
-          <div className="flex flex-wrap gap-4 items-center px-6 pt-5 pb-5 w-full max-md:px-5 max-md:max-w-full">
-                  <div className="flex flex-1 shrink self-stretch my-auto h-5 basis-0 min-w-[240px] w-[875px]" />
-                  <div className="flex gap-4 items-center self-stretch my-auto bg-custom-light-indigo">
-                    <div className="flex items-start self-stretch my-auto">
-                      <div className="flex items-start text-white rounded-lg">
-                        <div className="flex overflow-hidden gap-2 justify-center items-center px-4 py-2.5 rounded-lg bg-custom-light-indigo">
-                          <img
-                            loading="lazy"
-                            src="https://cdn.builder.io/api/v1/image/assets/TEMP/5875b96783249afcdda6028fb0ac9c2a8b1b00d54a36c45d450498274e024d49?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
-                            className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square"
-                          />
-                          <div className="self-stretch my-auto">Delete </div>
-                        </div>
-                      </div>
-                      <div className="flex items-start text-white whitespace-nowrap rounded-lg">
-                        <div className="flex overflow-hidden gap-2 justify-center items-center px-4 py-2.5 rounded-lg bg-custom-light-indigo">
-                          <img
-                            loading="lazy"
-                            src="https://cdn.builder.io/api/v1/image/assets/TEMP/e9a3281f6ba912ddd2b10f18e5aeaab0b6670f9d9a34254e2506f9230e109cb4?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
-                            className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square"
-                          />
-                          <div className="self-stretch my-auto">Filters</div>
-                        </div>
-                      </div>
+            <div className="flex flex-wrap gap-4 items-center px-6 pt-5 pb-5 w-full max-md:px-5 max-md:max-w-full">
+              <div className="flex flex-1 shrink self-stretch my-auto h-5 basis-0 min-w-[240px] w-[875px]" />
+              <div className="flex gap-4 items-center self-stretch my-auto bg-custom-light-indigo">
+                <div className="flex items-start self-stretch my-auto">
+                  <div className="flex items-start text-white rounded-lg">
+                    <div className="flex overflow-hidden gap-2 justify-center items-center px-4 py-2.5 rounded-lg bg-custom-light-indigo">
+                      <img
+                        loading="lazy"
+                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/5875b96783249afcdda6028fb0ac9c2a8b1b00d54a36c45d450498274e024d49?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+                        className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square"
+                      />
+                      <div className="self-stretch my-auto">Delete </div>
+                    </div>
+                  </div>
+                  <div className="flex items-start text-white whitespace-nowrap rounded-lg">
+                    <div className="flex overflow-hidden gap-2 justify-center items-center px-4 py-2.5 rounded-lg bg-custom-light-indigo">
+                      <img
+                        loading="lazy"
+                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/e9a3281f6ba912ddd2b10f18e5aeaab0b6670f9d9a34254e2506f9230e109cb4?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+                        className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square"
+                      />
+                      <div className="self-stretch my-auto">Filters</div>
                     </div>
                   </div>
                 </div>
-          {/* Table section */}
-          <TableContainer
-            component={Paper}
-            style={{ maxHeight: "400px", overflow: "auto" }}
-            sx={{ backgroundColor: "#21222d" }}
-          >
-            <Table
-              sx={{ minWidth: 650, backgroundColor: "#21222d" }}
-              aria-label="simple table"
-              stickyHeader
+              </div>
+            </div>
+            {/* Table section */}
+            <TableContainer
+              component={Paper}
+              style={{ maxHeight: "400px", overflow: "auto" }}
+              sx={{ backgroundColor: "#21222d" }}
             >
-              <TableHead>
-                <TableRow>
-                  {[
-                    "#",
-                    "Reference ID",
-                    "First Name",
-                    "Last Name",
-                    "Date of Birth",
-                    "Email",
-                    "Phone",
-                  ].map((header) => (
-                    <TableCell
-                      key={header}
-                      sx={{ color: "white", backgroundColor: "#21222d" }}
-                    >
-                      {header}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {tableData.map((row, index) => (
-                  <TableRow
-                    key={row.id || index}
-                    sx={{ backgroundColor: "#333443" }}
-                  >
-                    <TableCell
-                      sx={{ color: "white", backgroundColor: "#333443" }}
-                    >
-                      {index + 1}
-                    </TableCell>
-                    <TableCell
-                      sx={{ color: "white", backgroundColor: "#333443" }}
-                    >
-                      {row.reference_number}
-                    </TableCell>
-                    <TableCell
-                      sx={{ color: "white", backgroundColor: "#333443" }}
-                    >
-                      {row.first_name}
-                    </TableCell>
-                    <TableCell
-                      sx={{ color: "white", backgroundColor: "#333443" }}
-                    >
-                      {row.last_name}
-                    </TableCell>
-                    <TableCell
-                      sx={{ color: "white", backgroundColor: "#333443" }}
-                    >
-                      {new Date(row.dob).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell
-                      sx={{ color: "white", backgroundColor: "#333443" }}
-                    >
-                      {row.email}
-                    </TableCell>
-                    <TableCell
-                      sx={{ color: "white", backgroundColor: "#333443" }}
-                    >
-                      {row.phone}
-                    </TableCell>
+              <Table
+                sx={{ minWidth: 650, backgroundColor: "#21222d" }}
+                aria-label="simple table"
+                stickyHeader
+              >
+                <TableHead>
+                  <TableRow>
+                    {[
+                      "#",
+                      "Reference ID",
+                      "First Name",
+                      "Last Name",
+                      "Date of Birth",
+                      "Email",
+                      "Phone",
+                    ].map((header) => (
+                      <TableCell
+                        key={header}
+                        sx={{ color: "white", backgroundColor: "#21222d" }}
+                      >
+                        {header}
+                      </TableCell>
+                    ))}
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                </TableHead>
+                <TableBody>
+                  {tableData.map((row, index) => (
+                    <TableRow
+                      key={row.id || index}
+                      sx={{ backgroundColor: "#333443" }}
+                    >
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#333443" }}
+                      >
+                        {index + 1}
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#333443" }}
+                      >
+                        {row.reference_number}
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#333443" }}
+                      >
+                        {row.first_name}
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#333443" }}
+                      >
+                        {row.last_name}
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#333443" }}
+                      >
+                        {new Date(row.dob).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#333443" }}
+                      >
+                        {row.email}
+                      </TableCell>
+                      <TableCell
+                        sx={{ color: "white", backgroundColor: "#333443" }}
+                      >
+                        {row.phone}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </div>
 
           {/* Modal Form */}

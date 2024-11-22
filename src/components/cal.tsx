@@ -101,7 +101,7 @@ const Calendar: React.FC = () => {
   };
 
   return (
-    <div className="p-6 mt-10 max-w-5xl mx-auto bg-gray-900 text-gray-100 shadow-md rounded-lg">
+    <div className="p-6 mt-10 mb-5 max-w-5xl mx-auto bg-gray-900 text-gray-100 shadow-md rounded-lg">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-gray-800 p-4 rounded-md shadow-sm">
           <h2 className="text-2xl font-semibold text-amber-300 mb-4 text-white">
