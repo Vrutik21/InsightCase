@@ -71,6 +71,12 @@ export class CaseService {
         where: { id: dto.service_id },
       });
 
+      const client = await this.prisma.client.findFirst({ where: { id: client_id } });
+
+      if (!client) {
+        new NotFoundException('Client not found');
+      }
+
       if (!service) {
         new NotFoundException('Service does not exist!');
       }
@@ -134,6 +140,8 @@ export class CaseService {
       // Integrate tasks with Microsoft To Do
       const access_token = await this.graphService.getAccessToken(req);
 
+      console.log(access_token, 'access');
+
       // Create a To Do list for the staff if not existing
       const toDoListId = await this.graphService.createToDoList(
         access_token,
@@ -148,6 +156,28 @@ export class CaseService {
           task.description,
           task.due_date.toISOString(),
         );
+
+        // Add task to Microsoft Calendar
+        await this.graphService.addEventToCalendar(access_token, {
+          subject: task.description,
+          start: {
+            dateTime: task.due_date.toISOString(),
+            timeZone: 'UTC',
+          },
+          end: {
+            dateTime: new Date(task.due_date.getTime() + 3600000).toISOString(), // 1-hour event
+            timeZone: 'UTC',
+          },
+          attendees: [
+            {
+              emailAddress: {
+                address: client.email,
+                name: client.first_name + client.last_name,
+              },
+              type: 'required',
+            },
+          ],
+        });
       }
 
       return newCase;
@@ -195,6 +225,35 @@ export class CaseService {
       );
     } catch (err) {
       console.error('Error creating Microsoft To Do task:', err);
+    }
+  }
+
+  async fetchAndFormatCalendarEvents(req: Request): Promise<any[]> {
+    const access_token = await this.graphService.getAccessToken(req);
+    const endpoint = 'https://graph.microsoft.com/v1.0/me/events';
+
+    try {
+      // Fetch events from the Microsoft Graph API
+      const response = await axios.get(endpoint, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const events = response.data.value;
+
+      // Format events for the frontend
+      return events.map((event) => ({
+        id: event.id,
+        title: event.subject,
+        startDate: event.start?.dateTime || null,
+        endDate: event.end?.dateTime || null,
+        location: event.location?.displayName || 'No location',
+        organizer: event.organizer?.emailAddress?.name || 'Unknown organizer',
+      }));
+    } catch (err) {
+      throw new Error(`Failed to fetch calendar events: ${err.message}`);
     }
   }
 

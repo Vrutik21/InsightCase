@@ -7,12 +7,12 @@ import { HttpStatus } from '@nestjs/common';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  //   @Get()
-  //   getAllusers() {
-  //     return this.userService.getAllUsers();
-  //   }
-
   @Get()
+  getAllusers() {
+    return this.userService.getAllUsers();
+  }
+
+  @Get('me')
   // @UseGuards(AuthGuard)
   async getUserProfile(@Req() req: Request, @Res() res: Response) {
     try {

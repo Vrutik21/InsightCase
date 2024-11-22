@@ -18,7 +18,19 @@ import { InternalServerErrorExceptionFilter } from './shared/filters/internalSer
 // }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
+  app.enableCors({
+    origin: (origin, callback) => {
+      console.log('Origin:', origin); // Log the origin of the incoming request
+      const allowedOrigins = ['http://localhost:3000'];
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'), false);
+      }
+    },
+    credentials: true,
+  });
   const configService = app.get(ConfigService);
   // Set Route Prefix to begin with /api/. E.g. localhost:3000/api
   // app.setGlobalPrefix('api');
@@ -34,7 +46,7 @@ async function bootstrap() {
     )
     .setVersion('1.0')
     .addBearerAuth()
-    .addServer('http://localhost:3000/', 'Local environment')
+    .addServer('http://localhost:3001/', 'Local environment')
     .build();
 
   const document = SwaggerModule.createDocument(app, options);
@@ -44,10 +56,10 @@ async function bootstrap() {
     new ValidationPipe({
       whitelist: true,
       transform: true,
-      forbidNonWhitelisted: true, // Helps prevent unwanted properties
-      transformOptions: {
-        enableImplicitConversion: true, // Auto-converts data types
-      },
+      // forbidNonWhitelisted: true, // Helps prevent unwanted properties
+      // transformOptions: {
+      //   enableImplicitConversion: true, // Auto-converts data types
+      // },
     }),
   );
   app.use(
@@ -58,7 +70,8 @@ async function bootstrap() {
       resave: false,
       saveUninitialized: false,
       cookie: {
-        secure: false,
+        secure: false, // Set to false for development (true for production with HTTPS)
+        httpOnly: true, // Cookie cannot be accessed via JavaScript
         maxAge: 60 * 60 * 1000, // 1 hour
       },
     }),

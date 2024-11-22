@@ -7,6 +7,7 @@ export class GraphService {
   // Method to get an access token for Microsoft Graph API
   async getAccessToken(req: Request): Promise<string> {
     const token = req.session?.token;
+    console.log(token, 'tkn');
     if (!token) {
       throw new UnauthorizedException('Access token not found in session.');
     }
@@ -53,5 +54,33 @@ export class GraphService {
         },
       },
     );
+  }
+
+  async addEventToCalendar(accessToken: string, eventDetails: any) {
+    const endpoint = `${appConfig.GRAPH_API_ROOT_URL}/me/events`;
+
+    await axios.post(endpoint, eventDetails, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+  }
+
+  async getAllCalendarEvents(access_token: string): Promise<any[]> {
+    const endpoint = `${appConfig.GRAPH_API_ROOT_URL}/me/events`;
+
+    try {
+      const response = await axios.get(endpoint, {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return response.data.value;
+    } catch (err) {
+      throw new Error(`Failed to fetch calendar events: ${err.message}`);
+    }
   }
 }

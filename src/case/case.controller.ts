@@ -33,6 +33,17 @@ export class CaseController {
     return this.caseService.testTasks(req);
   }
 
+  @Get('events')
+  async getCalendarEvents(@Req() req: Request) {
+    try {
+      return await this.caseService.fetchAndFormatCalendarEvents(req);
+    } catch (err) {
+      return {
+        error: 'Failed to fetch calendar events',
+        message: err.message,
+      };
+    }
+  }
   // @Get('tasks')
   // createToDoTask(@Req() req: Request) {
   //   return this.caseService.createToDoTask(req);
