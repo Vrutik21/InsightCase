@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcryptjs';
@@ -13,12 +13,15 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as appConfig from '../../appConfig.json';
 import { Request } from 'express';
+import axios from 'axios';
+import { GraphService } from 'src/graph/graph.service';
 dotenv.config();
 
 @Injectable()
 export class AuthService {
   // ConfidentialClientApplication is used for WebApp and WebAPI scenarios. See MSAL-Node docs for more info.
   private msalClient: ConfidentialClientApplication;
+  private readonly graphService: GraphService;
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
@@ -192,5 +195,23 @@ export class AuthService {
         expiresIn: process.env.JWT_EXPIRES,
       }),
     };
+  }
+
+  async validateUser(req: Request) {
+    try {
+      // const access_token = await this.graphService.getAccessToken(req);
+
+      const response = await axios.get('https://graph.microsoft.com/v1.0/me', {
+        headers: {
+          Authorization: `Bearer ${req.session?.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      return false;
+    } catch (error) {
+      console.error('Token validation failed:', error.message);
+      throw new ForbiddenException('User not authenticated');
+    }
   }
 }

@@ -8,7 +8,7 @@ import {
   HttpStatus,
   InternalServerErrorException,
   Query,
-  HttpException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignInDto, SignUpDto } from './dto/auth.dto';
@@ -16,7 +16,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { Request, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import crypto from 'crypto';
-import axios from 'axios';
 
 @ApiTags('User')
 @Controller('auth')
@@ -25,6 +24,17 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
   ) {}
+
+  @Get('check')
+  async checkAuth(@Req() req: Request) {
+    const isAuthenticated = await this.authService.validateUser(req);
+
+    if (!isAuthenticated) {
+      throw new UnauthorizedException('User is not authenticated');
+    }
+
+    return true;
+  }
 
   @Get('azure')
   async redirectToAzure(@Res() res: Response) {

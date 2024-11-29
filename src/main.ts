@@ -7,6 +7,7 @@ import * as session from 'express-session';
 import crypto from 'crypto';
 import { UnauthorizedExceptionFilter } from './shared/filters/unauthorized-exception.filter';
 import { InternalServerErrorExceptionFilter } from './shared/filters/internalServerError-exception.filter';
+import * as passport from 'passport';
 
 // Session Management - Using HTTPS?
 // let isSessionSecure = true;
@@ -22,7 +23,7 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       console.log('Origin:', origin); // Log the origin of the incoming request
-      const allowedOrigins = ['http://localhost:3000'];
+      const allowedOrigins = ['http://localhost:3000', 'https://login.microsoftonline.com'];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
@@ -76,6 +77,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  // app.use(passport.initialize());
+  // app.use(passport.session());
 
   const filters: ExceptionFilter<any>[] = [
     new UnauthorizedExceptionFilter(),
