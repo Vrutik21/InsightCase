@@ -1,10 +1,10 @@
 import Dashboard from "./dashboard";
-// import ProtectedRoute from "@/components/ProtectedRoute";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function Home() {
   return (
-    // <ProtectedRoute>
-    <Dashboard />
-    // </ProtectedRoute>
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
   );
 }

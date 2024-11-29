@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 // import { Calendar } from "@/components/ui/calendar";
 import Calendar from "../components/cal";
 import Navbar from "@/components/navbar";
-import Link from "next/link";
 import axios from "axios";
 
 export default function Dashboard() {

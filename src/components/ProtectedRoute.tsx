@@ -1,21 +1,38 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import api from "../services/api";
+import axios from "axios";
 
 const ProtectedRoute = ({ children }: any) => {
   const router = useRouter();
+  // const [loading, setLoading] = useState(true);
+
+  const checkAuth = async () => {
+    try {
+      const response = await axios.get(
+        process.env.NEXT_PUBLIC_API_URL + "/auth/check",
+        {
+          withCredentials: true,
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+      console.log("Authenticated:", response.data);
+    } catch (error) {
+      if (error.response?.status === 403) {
+        console.log("User not authenticated. Redirecting...");
+        router.push("/login");
+      } else {
+        console.error("Error during auth check:", error);
+      }
+    }
+  };
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        await api.get("/auth/check");
-      } catch {
-        router.push("/login");
-      }
-    };
-
     checkAuth();
-  }, [router]);
+  }, []);
+
+  // if (loading) return <div>Loading...</div>;
 
   return <>{children}</>;
 };

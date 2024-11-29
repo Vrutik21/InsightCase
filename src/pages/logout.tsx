@@ -1,13 +1,18 @@
 // components/LogoutButton.jsx
+import axios from "axios";
 import React from "react";
 
 const LogoutButton = () => {
   const handleLogout = async () => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/logout`, {
-        method: "GET",
-        credentials: "include", // Ensure cookies are sent
+      await axios.get(process.env.NEXT_PUBLIC_API_URL + "/auth/logout", {
+        withCredentials: true,
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
       });
+
+      sessionStorage.clear();
       window.location.href = "/";
     } catch (err) {
       console.error("Logout error:", err);
