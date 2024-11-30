@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function Navbar() {
   const router = useRouter();
@@ -18,6 +19,22 @@ export default function Navbar() {
   const handleButtonClick = (button: string, path: string) => {
     setActiveButton(button);
     router.push(path);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.get(process.env.NEXT_PUBLIC_API_URL + "/auth/logout", {
+        withCredentials: true,
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
+
+      sessionStorage.clear();
+      window.location.href = "/";
+    } catch (err) {
+      console.error("Logout error:", err);
+    }
   };
 
   // Define rectangle styles dynamically based on the active button
@@ -147,7 +164,10 @@ export default function Navbar() {
             className="object-contain shrink-0 aspect-square w-[34px]"
             alt="Logout Icon"
           />
-          <button className="my-auto bg-transparent text-white border-none cursor-pointer">
+          <button
+            onClick={handleLogout}
+            className="my-auto bg-transparent text-white border-none cursor-pointer"
+          >
             Logout
           </button>
         </div>
