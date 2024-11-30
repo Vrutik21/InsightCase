@@ -14,10 +14,11 @@ import {
   Button,
   Select,
   FormControl,
-  InputLabel,
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface TableDataRow {
   id: string;
@@ -36,6 +37,7 @@ interface TableDataRow {
 }
 
 interface FormData {
+  id?: string;
   reference_number: number | "";
   referral_date: string;
   first_name: string;
@@ -47,6 +49,7 @@ interface FormData {
   region: string;
 }
 
+// Define REGIONS constant
 const REGIONS = [
   "WINDSOR",
   "LEAMINGTON",
@@ -56,6 +59,7 @@ const REGIONS = [
   "CHATHAM",
 ];
 
+// Define initialFormData constant
 const initialFormData: FormData = {
   reference_number: "",
   referral_date: "",
@@ -73,7 +77,9 @@ export default function CaseTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
+  const [isEditMode, setIsEditMode] = useState(false);
 
+  // Define fetchData function
   const fetchData = async () => {
     try {
       const response = await fetch(
@@ -84,10 +90,6 @@ export default function CaseTable() {
           },
         }
       );
-
-      // if (!response.ok) {
-      //   throw new Error(HTTP error! status: ${response.status})
-      // }
 
       const data = await response.json();
       setTableData(data);
@@ -100,6 +102,7 @@ export default function CaseTable() {
     fetchData();
   }, []);
 
+  // Define validateForm function
   const validateForm = (): boolean => {
     const errors: Partial<FormData> = {};
 
@@ -123,10 +126,6 @@ export default function CaseTable() {
       errors.phone = "Phone must contain only numbers";
     }
 
-    // if (!formData.reference_number) {
-    //   errors.reference_number = "Reference number is required";
-    // }
-
     if (!formData.region) {
       errors.region = "Region is required";
     }
@@ -135,17 +134,140 @@ export default function CaseTable() {
     return Object.keys(errors).length === 0;
   };
 
-  const handleAddClientClick = () => {
-    setIsModalOpen(true);
-    setFormErrors({});
+  // Handle Delete Client
+  const handleDeleteClient = async (clientId: string) => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/client/${clientId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete client");
+      }
+
+      await fetchData();
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      alert("Failed to delete client");
+    }
   };
 
+  // Handle Edit Client
+const handleEditClient = (client: TableDataRow) => {
+  // Trim any potential whitespace from the ID
+  const cleanId = client.id.trim();
+  
+  setFormData({
+    id: cleanId, // Use the cleaned ID
+    reference_number: client.reference_number,
+    referral_date: new Date(client.referral_date).toISOString().split('T')[0],
+    first_name: client.first_name,
+    last_name: client.last_name,
+    dob: new Date(client.dob).toISOString().split('T')[0],
+    email: client.email,
+    phone: client.phone,
+    address: client.address,
+    region: client.region,
+  });
+  
+  setIsEditMode(true);
+  setIsModalOpen(true);
+};
+
+// Handle Form Submit
+const handleFormSubmit = async (event: React.FormEvent) => {
+  event.preventDefault();
+
+  if (!validateForm()) {
+    return;
+  }
+
+  try {
+    if (isEditMode && (!formData.id || formData.id.trim() === '')) {
+      throw new Error('Invalid client ID');
+    }
+
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/+$/, '');
+    const url = isEditMode 
+      ? `${baseUrl}/client/${formData.id.trim()}` 
+      : `${baseUrl}/client`;
+    
+      const method = isEditMode ? "PATCH" : "POST";
+
+    // Prepare request payload
+    const requestPayload = {
+      ...formData,
+      id: formData.id ? formData.id.trim() : undefined,
+      reference_number: Number(formData.reference_number),
+      phone: String(formData.phone),
+      referral_date: new Date(formData.referral_date).toISOString(),
+      dob: new Date(formData.dob).toISOString(),
+    };
+
+    // Extensive logging
+    console.log('Request Details:', {
+      url,
+      method,
+      baseUrl: process.env.NEXT_PUBLIC_API_URL,
+      clientId: formData.id,
+      fullPayload: requestPayload
+    });
+
+    const response = await fetch(url, {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify(requestPayload),
+    });
+
+    // More detailed error handling
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Detailed Error Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText,
+        url,
+        method
+      });
+      throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+    }
+
+    const responseData = await response.json();
+    console.log('Success response:', responseData);
+
+    await fetchData();
+    handleCloseModal();
+  } catch (error) {
+    console.error("Error submitting form:", error);
+    alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+};
+
+  // Handle Close Modal
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setFormData(initialFormData);
     setFormErrors({});
+    setIsEditMode(false);
   };
 
+  // Handle Add Client Click
+  const handleAddClientClick = () => {
+    setIsEditMode(false);
+    setIsModalOpen(true);
+    setFormErrors({});
+  };
+
+  // Handle Input Change
   const handleInputChange = (
     event: React.ChangeEvent<
       HTMLInputElement | { name?: string; value: unknown }
@@ -157,45 +279,6 @@ export default function CaseTable() {
         ...prev,
         [name]: value,
       }));
-    }
-  };
-
-  const handleFormSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!validateForm()) {
-      return;
-    }
-
-    try {
-      const response = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + "/client",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "true",
-          },
-          body: JSON.stringify({
-            ...formData,
-            reference_number: Number(formData.reference_number),
-            phone: String(formData.phone),
-            referral_date: new Date(formData.referral_date).toISOString(),
-            dob: new Date(formData.dob).toISOString(),
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to submit form");
-      }
-
-      await fetchData(); // Refresh table data
-      handleCloseModal();
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      // You might want to show an error message to the user here
     }
   };
 
@@ -222,34 +305,13 @@ export default function CaseTable() {
           </div>
 
           <div className="flex overflow-hidden flex-col mt-4 w-full rounded-lg bg-custom-light-indigo min-h-[777px] max-md:max-w-full">
-            <div className="flex flex-wrap gap-4 items-center px-6 pt-5 pb-5 w-full max-md:px-5 max-md:max-w-full">
-              <div className="flex flex-1 shrink self-stretch my-auto h-5 basis-0 min-w-[240px] w-[875px]" />
-              <div className="flex gap-4 items-center self-stretch my-auto bg-custom-light-indigo">
-                <div className="flex items-start self-stretch my-auto">
-                  <div className="flex items-start text-white rounded-lg">
-                    <div className="flex overflow-hidden gap-2 justify-center items-center px-4 py-2.5 rounded-lg bg-custom-light-indigo">
-                      <img
-                        loading="lazy"
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/5875b96783249afcdda6028fb0ac9c2a8b1b00d54a36c45d450498274e024d49?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
-                        className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square"
-                      />
-                      <div className="self-stretch my-auto">Delete </div>
-                    </div>
-                  </div>
-                  <div className="flex items-start text-white whitespace-nowrap rounded-lg">
-                    <div className="flex overflow-hidden gap-2 justify-center items-center px-4 py-2.5 rounded-lg bg-custom-light-indigo">
-                      <img
-                        loading="lazy"
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/e9a3281f6ba912ddd2b10f18e5aeaab0b6670f9d9a34254e2506f9230e109cb4?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
-                        className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square"
-                      />
-                      <div className="self-stretch my-auto">Filters</div>
-                    </div>
+          <div className="flex flex-wrap gap-4 items-center px-6 pt-5 pb-5 w-full max-md:px-5 max-md:max-w-full">
+                <div className="flex flex-1 shrink self-stretch my-auto h-5 basis-0 min-w-[240px] w-[875px]" />
+                <div className="flex gap-4 items-center self-stretch my-auto bg-custom-light-indigo">
+                  <div className="flex items-start self-stretch my-auto">
                   </div>
                 </div>
               </div>
-            </div>
-            {/* Table section */}
             <TableContainer
               component={Paper}
               style={{ maxHeight: "400px", overflow: "auto" }}
@@ -270,6 +332,7 @@ export default function CaseTable() {
                       "Date of Birth",
                       "Email",
                       "Phone",
+                      "Actions"
                     ].map((header) => (
                       <TableCell
                         key={header}
@@ -286,40 +349,42 @@ export default function CaseTable() {
                       key={row.id || index}
                       sx={{ backgroundColor: "#333443" }}
                     >
-                      <TableCell
-                        sx={{ color: "white", backgroundColor: "#333443" }}
-                      >
+                      <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
                         {index + 1}
                       </TableCell>
-                      <TableCell
-                        sx={{ color: "white", backgroundColor: "#333443" }}
-                      >
+                      <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
                         {row.reference_number}
                       </TableCell>
-                      <TableCell
-                        sx={{ color: "white", backgroundColor: "#333443" }}
-                      >
+                      <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
                         {row.first_name}
                       </TableCell>
-                      <TableCell
-                        sx={{ color: "white", backgroundColor: "#333443" }}
-                      >
+                      <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
                         {row.last_name}
                       </TableCell>
-                      <TableCell
-                        sx={{ color: "white", backgroundColor: "#333443" }}
-                      >
+                      <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
                         {new Date(row.dob).toLocaleDateString()}
                       </TableCell>
-                      <TableCell
-                        sx={{ color: "white", backgroundColor: "#333443" }}
-                      >
+                      <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
                         {row.email}
                       </TableCell>
-                      <TableCell
-                        sx={{ color: "white", backgroundColor: "#333443" }}
-                      >
+                      <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
                         {row.phone}
+                      </TableCell>
+                      <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
+                        <div className="flex gap-2">
+                          <IconButton 
+                            onClick={() => handleEditClient(row)}
+                            sx={{ color: "white" }}
+                          >
+                            <EditIcon />
+                          </IconButton>
+                          <IconButton 
+                            onClick={() => handleDeleteClient(row.id)}
+                            sx={{ color: "white" }}
+                          >
+                            <DeleteIcon />
+                          </IconButton>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -328,7 +393,7 @@ export default function CaseTable() {
             </TableContainer>
           </div>
 
-          {/* Modal Form */}
+          {/* Modal Form - Remains the same as in previous code */}
           <Modal open={isModalOpen} onClose={handleCloseModal}>
             <div className="flex justify-center items-center min-h-screen bg-opacity-60 bg-gray-900">
               <form
