@@ -1,10 +1,14 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Access_level, Status } from '@prisma/client';
-import { CreateCaseDto } from './dto/case.dto';
+import { CreateCaseDto, UpdateCaseDto } from './dto/case.dto';
 import { prismaError } from 'src/shared/filters/error-handling';
 import { GraphService } from 'src/graph/graph.service';
-import * as appConfig from 'appConfig.json';
 import { Request } from 'express';
 import axios from 'axios';
 
@@ -34,9 +38,12 @@ export class CaseService {
     });
   }
 
-  async getAllCases() {
+  async getAllCases(status?: Status) {
     try {
+      const whereCondition = status ? { status } : undefined;
+
       return await this.prisma.case.findMany({
+        where: whereCondition,
         include: {
           case_manager: true,
           staff: true,
@@ -66,19 +73,18 @@ export class CaseService {
       const { client_id, case_manager_id, service_id, start_at, region, status, staff_id } = dto;
       const start_date = new Date(start_at);
 
-      console.log(start_date.toISOString());
       const service = await this.prisma.service.findUnique({
-        where: { id: dto.service_id },
+        where: { id: service_id },
       });
 
       const client = await this.prisma.client.findFirst({ where: { id: client_id } });
 
       if (!client) {
-        new NotFoundException('Client not found');
+        throw new NotFoundException('Client not found');
       }
 
       if (!service) {
-        new NotFoundException('Service does not exist!');
+        throw new NotFoundException('Service does not exist!');
       }
 
       const newCase = await this.prisma.case.create({
@@ -92,12 +98,6 @@ export class CaseService {
           status: status || Status.OPEN,
         },
       });
-
-      console.log('first');
-
-      if (!service) {
-        throw new NotFoundException('Service does not exist!');
-      }
 
       const tasks = [];
 
@@ -123,7 +123,6 @@ export class CaseService {
         });
       }
 
-      // Employment Action Plan (EAP) task (e.g., within 2 weeks)
       if (service.action_plan_weeks) {
         tasks.push({
           case_id: newCase.id,
@@ -135,30 +134,32 @@ export class CaseService {
         });
       }
 
-      await this.prisma.task.createMany({ data: tasks });
+      // Insert tasks into the database
+      await this.prisma.task.createMany({ data: tasks, skipDuplicates: true });
 
-      // Integrate tasks with Microsoft To Do
+      // Retrieve tasks from the database to get their IDs
+      const createdTasks = await this.prisma.task.findMany({
+        where: { case_id: newCase.id },
+      });
+
       const access_token = await this.graphService.getAccessToken(req);
 
-      console.log(access_token, 'access');
-
-      // Create a To Do list for the staff if not existing
+      // Create a To-Do list for the staff
       const toDoListId = await this.graphService.createToDoList(
         access_token,
-        `Tasks for Case ${newCase.id}`,
+        `Tasks for Client ${client.first_name} ${client.last_name}`,
       );
 
-      // Add each task to the To Do list
-      for (const task of tasks) {
-        await this.graphService.addTaskToToDoList(
+      // Integrate tasks with Microsoft To-Do and Calendar
+      for (const task of createdTasks) {
+        const todoTaskId = await this.graphService.addTaskToToDoList(
           access_token,
           toDoListId,
           task.description,
           task.due_date.toISOString(),
         );
 
-        // Add task to Microsoft Calendar
-        await this.graphService.addEventToCalendar(access_token, {
+        const calendarEventId = await this.graphService.addEventToCalendar(access_token, {
           subject: task.description,
           start: {
             dateTime: task.due_date.toISOString(),
@@ -172,15 +173,99 @@ export class CaseService {
             {
               emailAddress: {
                 address: client.email,
-                name: client.first_name + client.last_name,
+                name: `${client.first_name} ${client.last_name}`,
               },
               type: 'required',
             },
           ],
         });
+
+        // Update task with Microsoft IDs
+        await this.prisma.task.update({
+          where: { id: task.id },
+          data: {
+            microsoft_list_id: toDoListId,
+            microsoft_todo_id: todoTaskId,
+            microsoft_calendar_event_id: calendarEventId,
+          },
+        });
       }
 
       return newCase;
+    } catch (err) {
+      prismaError(err);
+    }
+  }
+
+  async updateCase(caseId: string, dto: UpdateCaseDto, req: Request) {
+    try {
+      // Retrieve the case
+      const existingCase = await this.prisma.case.findUnique({
+        where: { id: caseId },
+        include: { tasks: true },
+      });
+
+      if (!existingCase) {
+        throw new NotFoundException('Case not found');
+      }
+
+      // Validate and update case status
+      const validStatuses = ['OPEN', 'ONGOING', 'CLOSED'];
+      if (dto.status && !validStatuses.includes(dto.status)) {
+        throw new BadRequestException('Invalid case status');
+      }
+
+      // Update case status
+      const updatedCase = await this.prisma.case.update({
+        where: { id: caseId },
+        data: {
+          status: dto.status || existingCase.status,
+          closed_at: dto.status === 'CLOSED' ? new Date() : null,
+        },
+      });
+
+      // Handle task updates if provided
+      if (dto.tasks && dto.tasks.length > 0) {
+        for (const taskUpdate of dto.tasks) {
+          const task = existingCase.tasks.find((t) => t.id === taskUpdate.id);
+
+          if (!task) {
+            throw new NotFoundException(`Task with ID ${taskUpdate.id} not found`);
+          }
+
+          // Update task completion status in the database
+          await this.prisma.task.update({
+            where: { id: task.id },
+            data: { is_complete: taskUpdate.is_complete },
+          });
+
+          // Sync with Microsoft To-Do
+          if (task.microsoft_todo_id) {
+            const endpoint = `https://graph.microsoft.com/v1.0/me/todo/lists/${task.microsoft_list_id}/tasks/${task.microsoft_todo_id}`;
+            const accessToken = await this.graphService.getAccessToken(req);
+
+            await this.graphService.patchMicrosoftResource(
+              endpoint,
+              { status: taskUpdate.is_complete ? 'completed' : 'notStarted' },
+              accessToken,
+            );
+          }
+
+          // Sync with Microsoft Calendar
+          if (task.microsoft_calendar_event_id) {
+            const endpoint = `https://graph.microsoft.com/v1.0/me/calendar/events/${task.microsoft_calendar_event_id}`;
+            const accessToken = await this.graphService.getAccessToken(req);
+
+            await this.graphService.patchMicrosoftResource(
+              endpoint,
+              { isCancelled: taskUpdate.is_complete },
+              accessToken,
+            );
+          }
+        }
+      }
+
+      return updatedCase;
     } catch (err) {
       prismaError(err);
     }

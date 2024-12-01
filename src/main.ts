@@ -19,11 +19,11 @@ import * as passport from 'passport';
 // }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   app.enableCors({
     origin: (origin, callback) => {
       console.log('Origin:', origin); // Log the origin of the incoming request
-      const allowedOrigins = ['http://localhost:3000', 'https://login.microsoftonline.com'];
+      const allowedOrigins = ['http://localhost:3000', 'http://localhost:3001'];
       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {

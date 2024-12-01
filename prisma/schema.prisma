@@ -2,9 +2,9 @@ generator client {
   provider = "prisma-client-js"
 }
 
-generator erd {
-  provider = "prisma-erd-generator"
-}
+// generator erd {
+//   provider = "prisma-erd-generator"
+// }
 
 datasource db {
   provider = "postgresql"
@@ -120,6 +120,9 @@ model Task {
   staff_id        String
   description     String
   due_date        DateTime
+  microsoft_list_id           String?
+  microsoft_todo_id           String?
+  microsoft_calendar_event_id String?
   is_complete     Boolean      @default(false)
   completed_at    DateTime?
   created_at      DateTime     @default(now())

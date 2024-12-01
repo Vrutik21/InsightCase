@@ -1,6 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Region, Status } from '@prisma/client';
-import { IsDateString, IsEnum, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateCaseDto {
   @ApiProperty({
@@ -54,18 +63,38 @@ export class CreateCaseDto {
   staff_id: string;
 }
 
+export class UpdateTaskDto {
+  @ApiProperty({
+    example: 'task-id-123',
+    required: true,
+  })
+  @IsString()
+  id: string;
+
+  @ApiProperty({
+    example: true,
+    required: true,
+  })
+  @IsBoolean()
+  is_complete: boolean;
+}
+
 export class UpdateCaseDto {
   @ApiProperty({
     example: 'OPEN',
     required: false,
   })
-  @IsEnum({ Status })
+  @IsOptional()
+  @IsEnum(['OPEN', 'ONGOING', 'CLOSED'])
   status?: Status;
 
   @ApiProperty({
-    example: '21-10-2024',
+    type: [UpdateTaskDto],
     required: false,
   })
-  @IsDateString()
-  closed_at?: Date;
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => UpdateTaskDto)
+  tasks?: UpdateTaskDto[];
 }

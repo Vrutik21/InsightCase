@@ -152,7 +152,8 @@ export class AuthController {
 
     // Get the original destination URL from the session or return '/'.
     // const redirectUrl = await this.authService.getAfterLoginRedirect(req);
-    const redirectUrl = 'http://localhost:3000';
+    // const redirectUrl = 'http://localhost:3000';
+    const redirectUrl = '/';
 
     // Delete AfterLoginRedirect from Session. Awaiting for Async process not required.
     this.authService.deleteAfterLoginRedirect(req);

@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req } from '@nestjs/common';
 import { TaskService } from './task.service';
-import { CreateTaskDto } from './dto/task.dto';
-import { ApiTags } from '@nestjs/swagger';
+import { CreateTaskDto, UpdateTaskDto } from './dto/task.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Request } from 'express';
 
 @ApiTags('Task')
 @Controller('task')
@@ -26,6 +27,18 @@ export class TaskController {
   @Post()
   createTask(@Body() dto: CreateTaskDto) {
     return this.taskService.createTask(dto);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update task completion status and sync with Microsoft' })
+  @ApiResponse({ status: 200, description: 'Task updated successfully' })
+  @ApiResponse({ status: 404, description: 'Task not found' })
+  async updateTaskCompletionStatus(
+    @Param('id') taskId: string,
+    @Body() dto: UpdateTaskDto,
+    @Req() req: Request,
+  ) {
+    return this.taskService.updateTaskCompletionStatus(taskId, dto, req);
   }
 
   @Delete(':id')

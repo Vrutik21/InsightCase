@@ -14,6 +14,20 @@ export class GraphService {
     return token;
   }
 
+  async patchMicrosoftResource(endpoint: string, data: any, accessToken: string) {
+    try {
+      await axios.patch(endpoint, data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      console.log(error, 'errsad');
+      // throw new UnauthorizedException(`Failed to update Microsoft resource: ${error.message}`);
+    }
+  }
+
   // Method to create a To Do list for a staff member
   async createToDoList(access_token: string, listName: string): Promise<string> {
     const endpoint = `${appConfig.GRAPH_API_ROOT_URL}/me/todo/lists`;
@@ -38,7 +52,7 @@ export class GraphService {
     dueDateTime: string,
   ) {
     const endpoint = `${appConfig.GRAPH_API_ROOT_URL}/me/todo/lists/${listId}/tasks`;
-    await axios.post(
+    const response = await axios.post(
       endpoint,
       {
         title,
@@ -54,17 +68,21 @@ export class GraphService {
         },
       },
     );
+
+    return response.data.id;
   }
 
   async addEventToCalendar(accessToken: string, eventDetails: any) {
     const endpoint = `${appConfig.GRAPH_API_ROOT_URL}/me/events`;
 
-    await axios.post(endpoint, eventDetails, {
+    const response = await axios.post(endpoint, eventDetails, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
       },
     });
+
+    return response.data.id;
   }
 
   async getAllCalendarEvents(access_token: string): Promise<any[]> {
