@@ -14,6 +14,7 @@ export default function Navbar() {
     else if (currentPath.includes("case")) setActiveButton("case");
     else if (currentPath.includes("client")) setActiveButton("client");
     else if (currentPath.includes("service")) setActiveButton("service");
+    else if (currentPath.includes("task")) setActiveButton("task");
   }, [router.pathname]);
 
   const handleButtonClick = (button: string, path: string) => {
@@ -52,6 +53,9 @@ export default function Navbar() {
         break;
       case "service":
         topValue = "440px";
+        break;
+      case "task":
+        topValue = "529px";
         break;
       default:
         break;
@@ -149,11 +153,26 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* Task Button */}
+        <div
+          className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300"
+          onClick={() => handleButtonClick("task-detail", "/task-detail")}
+        >
+          <img
+            loading="lazy"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/522213a87b6e17d029f6cb89b5e0777ca633cd5c5380adef24d3939582bb904a?placeholderIfAbsent=true&apiKey=70c5f0c08e304d4b9d8f08ceb2f4dd6f"
+            className="object-contain shrink-0 aspect-[0.83] w-[15px]"
+          />
+          <button className="my-auto bg-transparent text-white border-none cursor-pointer">
+            Task
+          </button>
+        </div>
+
         {/* Bottom Image */}
         <img
           loading="lazy"
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/026ff0ce6178839c06ee43ae4f8850214c24c1fb07725312719f6a47825f4681"
-          className="object-contain self-stretch mb-0 w-full aspect-[166.67] mt-28"
+          className="object-contain self-stretch mb-0 w-full aspect-[166.67] mt-12"
         />
 
         {/* Logout Section */}
