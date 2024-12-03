@@ -93,14 +93,14 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Task Button */}
+        {/* Dashboard Button */}
         <div
           className="flex relative gap-2.5 mt-28 ml-7 text-base font-semibold text-zinc-300 whitespace-nowrap"
           onClick={() => handleButtonClick("dashboard", "/dashboard")}
         >
           <img
             loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/8eb521e107e1aff25842d6dea993c2003f69da71885118e8c8aa1666e3145ee3?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/2ee0597e81b2e9f974ef8a49ed55ce19a58e1c8805276e9d7496b2cf55f7ca21?placeholderIfAbsent=true&apiKey=70c5f0c08e304d4b9d8f08ceb2f4dd6f"
             className="object-contain shrink-0 aspect-[0.72] w-[13px] text-white"
           />
           <button className="my-auto bg-transparent text-white border-none cursor-pointer">
@@ -160,7 +160,7 @@ export default function Navbar() {
         >
           <img
             loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/522213a87b6e17d029f6cb89b5e0777ca633cd5c5380adef24d3939582bb904a?placeholderIfAbsent=true&apiKey=70c5f0c08e304d4b9d8f08ceb2f4dd6f"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/8eb521e107e1aff25842d6dea993c2003f69da71885118e8c8aa1666e3145ee3?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
             className="object-contain shrink-0 aspect-[0.83] w-[15px]"
           />
           <button className="my-auto bg-transparent text-white border-none cursor-pointer">

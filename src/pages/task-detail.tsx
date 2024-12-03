@@ -25,10 +25,15 @@ import DeleteIcon from "@mui/icons-material/Delete";
 interface TaskData {
   id: string;
   case_id: string;
+  staff_id: string;
   description: string;
   due_date: string;
   is_complete: boolean;
   completed_at: string | null;
+  staff: {
+    id: string;
+    name: string;
+  };
 }
 
 interface FormData {
@@ -37,6 +42,12 @@ interface FormData {
   description: string;
   due_date: string;
   is_complete: boolean;
+}
+
+interface CaseData {
+  id: string;
+  case_number: string;
+  staff_id: string;
 }
 
 const initialFormData: FormData = {
@@ -48,6 +59,7 @@ const initialFormData: FormData = {
 
 export default function TaskDetail() {
   const [taskData, setTaskData] = useState<TaskData[]>([]);
+  const [cases, setCases] = useState<CaseData[]>([]);
   const router = useRouter();
   const { caseId } = router.query;
 
@@ -60,25 +72,44 @@ export default function TaskDetail() {
     taskId: string | null;
   }>({ isOpen: false, taskId: null });
 
-  const fetchTaskData = async () => {
+  // Fetch cases along with tasks
+  const fetchCaseData = async () => {
     try {
-      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/task", {
+      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + "/case", {
         headers: { "ngrok-skip-browser-warning": "true" },
       });
       const data = await response.json();
-
-      const filteredData = caseId
-        ? data.filter((task: TaskData) => task.case_id === caseId)
-        : data;
-
-      setTaskData(filteredData);
+      setCases(data);
     } catch (error) {
-      console.error("Error fetching task data:", error);
+      console.error("Error fetching case data:", error);
     }
   };
 
   useEffect(() => {
-    fetchTaskData();
+    const fetchData = async () => {
+      try {
+        // Fetch Tasks with expanded staff information
+        const taskResponse = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/task?include=staff`, 
+          {
+            headers: { "ngrok-skip-browser-warning": "true" },
+          }
+        );
+        const taskData = await taskResponse.json();
+  
+        const filteredData = caseId
+          ? taskData.filter((task: TaskData) => task.case_id === caseId)
+          : taskData;
+  
+        setTaskData(filteredData);
+  
+        // Rest of the existing code remains the same
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
   }, [caseId]);
 
   const validateForm = (): boolean => {
@@ -162,9 +193,13 @@ export default function TaskDetail() {
       
       const method = isEditMode ? "PATCH" : "POST";
 
+      // Find the selected case to get staff_id
+      const selectedCase = cases.find(c => c.case_number === formData.case_id);
+
       const requestPayload = {
         ...formData,
         due_date: new Date(formData.due_date).toISOString(),
+        staff_id: selectedCase?.staff_id || '', // Add staff_id from selected case
       };
 
       const response = await fetch(url, {
@@ -259,6 +294,7 @@ export default function TaskDetail() {
                     {[
                       "#",
                       "Case",
+                      "Staff",
                       "Description",
                       "Due Date",
                       "Completed",
@@ -284,7 +320,22 @@ export default function TaskDetail() {
                         {index + 1}
                       </TableCell>
                       <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
-                        {task.case_id}
+                        <a 
+                          href={`/task?case_id=${task.case_id}`} 
+                          className="text-blue-400 underline hover:text-blue-300"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            router.push({
+                              pathname: '/case',
+                              query: { id: task.case_id }
+                            });
+                          }}
+                        >
+                          Case
+                        </a>
+                      </TableCell>
+                      <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
+                        {task.staff?.name || 'N/A'}
                       </TableCell>
                       <TableCell sx={{ color: "white", backgroundColor: "#333443" }}>
                         {task.description}
@@ -357,16 +408,22 @@ export default function TaskDetail() {
                   {/* Case ID */}
                   <FormControl fullWidth>
                     <label className="block text-white mb-1">Case ID</label>
-                    <TextField
+                    <Select
                       name="case_id"
-                      type="string"
                       value={formData.case_id}
                       onChange={handleInputChange}
                       error={!!formErrors.case_id}
-                      helperText={formErrors.case_id}
-                      className="bg-custom-lighter-indigo rounded-md"
-                      InputProps={{ style: { color: "white" } }}
-                    />
+                      className="bg-custom-lighter-indigo rounded-md text-white"
+                    >
+                      {cases.map((caseItem) => (
+                        <MenuItem key={caseItem.id} value={caseItem.case_number}>
+                          {caseItem.case_number}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                    {formErrors.case_id && (
+                      <p className="text-red-500 text-sm mt-1">{formErrors.case_id}</p>
+                    )}
                   </FormControl>
 
                   {/* Description */}
@@ -433,7 +490,6 @@ export default function TaskDetail() {
             </div>
           </Modal>
 
-          {/* Delete Confirmation Modal */}
           {/* Delete Confirmation Modal */}
           <Modal
             open={confirmDelete.isOpen}
