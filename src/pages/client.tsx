@@ -15,6 +15,7 @@ import {
   Select,
   FormControl,
   IconButton,
+  Box,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -78,6 +79,10 @@ export default function CaseTable() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [formErrors, setFormErrors] = useState<Partial<FormData>>({});
   const [isEditMode, setIsEditMode] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<{
+    isOpen: boolean;
+    clientId: string | null;
+  }>({ isOpen: false, clientId: null });
 
   // Define fetchData function
   const fetchData = async () => {
@@ -134,29 +139,42 @@ export default function CaseTable() {
     return Object.keys(errors).length === 0;
   };
 
-  // Handle Delete Client
-  const handleDeleteClient = async (clientId: string) => {
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/client/${clientId}`,
-        {
-          method: "DELETE",
-          headers: {
-            "ngrok-skip-browser-warning": "true",
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete client");
-      }
-
-      await fetchData();
-    } catch (error) {
-      console.error("Error deleting client:", error);
-      alert("Failed to delete client");
-    }
+  // Updated method to open delete confirmation
+  const handleDeleteConfirmation = (clientId: string) => {
+    setConfirmDelete({ 
+      isOpen: true, 
+      clientId: clientId 
+    });
   };
+
+  // Modify this method to use the clientId from the confirmDelete state
+const handleDeleteClient = async () => {
+  const clientId = confirmDelete.clientId;
+  if (!clientId) return;
+  
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/client/${clientId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to delete client");
+    }
+
+    await fetchData();
+    // Close the delete confirmation modal
+    setConfirmDelete({ isOpen: false, clientId: null });
+  } catch (error) {
+    console.error("Error deleting client:", error);
+    alert("Failed to delete client");
+  }
+};
 
   // Handle Edit Client
 const handleEditClient = (client: TableDataRow) => {
@@ -307,11 +325,11 @@ const handleFormSubmit = async (event: React.FormEvent) => {
           <div className="flex overflow-hidden flex-col mt-4 w-full rounded-lg bg-custom-light-indigo min-h-[777px] max-md:max-w-full">
           <div className="flex flex-wrap gap-4 items-center px-6 pt-5 pb-5 w-full max-md:px-5 max-md:max-w-full">
                 <div className="flex flex-1 shrink self-stretch my-auto h-5 basis-0 min-w-[240px] w-[875px]" />
-                <div className="flex gap-4 items-center self-stretch my-auto bg-custom-light-indigo">
-                  <div className="flex items-start self-stretch my-auto">
+                  <div className="flex gap-4 items-center self-stretch my-auto bg-custom-light-indigo">
+                    <div className="flex items-start self-stretch my-auto">
+                    </div>
                   </div>
                 </div>
-              </div>
             <TableContainer
               component={Paper}
               style={{ maxHeight: "400px", overflow: "auto" }}
@@ -379,7 +397,7 @@ const handleFormSubmit = async (event: React.FormEvent) => {
                             <EditIcon />
                           </IconButton>
                           <IconButton 
-                            onClick={() => handleDeleteClient(row.id)}
+                            onClick={() => handleDeleteConfirmation(row.id)}
                             sx={{ color: "white" }}
                           >
                             <DeleteIcon />
@@ -579,6 +597,47 @@ const handleFormSubmit = async (event: React.FormEvent) => {
                 </div>
               </form>
             </div>
+          </Modal>
+          <Modal
+            open={confirmDelete.isOpen}
+            onClose={() => setConfirmDelete({ isOpen: false, clientId: null })}
+            aria-labelledby="delete-confirmation-title"
+          >
+            <Box sx={{
+              position: "absolute" as const,
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "#21222d",
+              // border: "2px solid #000",
+              borderRadius: "12px",
+              boxShadow: 24,
+              p: 4,
+              color: "white",
+              textAlign: "center"
+            }}>
+              <h2 id="delete-confirmation-title" className="text-xl mb-4">
+                Confirm Delete
+              </h2>
+              <p className="mb-4">Are you sure you want to delete this client?</p>
+              <div className="flex justify-center gap-4">
+              <Button 
+                variant="contained" 
+                color="error" 
+                onClick={() => handleDeleteClient()}
+              >
+                Delete
+              </Button>
+                <Button 
+                  variant="outlined" 
+                  onClick={() => setConfirmDelete({ isOpen: false, clientId: null })}
+                  sx={{ color: "white", borderColor: "white" }}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </Box>
           </Modal>
         </div>
       </div>

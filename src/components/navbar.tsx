@@ -14,6 +14,7 @@ export default function Navbar() {
     else if (currentPath.includes("case")) setActiveButton("case");
     else if (currentPath.includes("client")) setActiveButton("client");
     else if (currentPath.includes("service")) setActiveButton("service");
+    else if (currentPath.includes("task")) setActiveButton("task");
   }, [router.pathname]);
 
   const handleButtonClick = (button: string, path: string) => {
@@ -53,6 +54,9 @@ export default function Navbar() {
       case "service":
         topValue = "440px";
         break;
+      case "task":
+        topValue = "529px";
+        break;
       default:
         break;
     }
@@ -89,14 +93,14 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Task Button */}
+        {/* Dashboard Button */}
         <div
           className="flex relative gap-2.5 mt-28 ml-7 text-base font-semibold text-zinc-300 whitespace-nowrap"
           onClick={() => handleButtonClick("dashboard", "/dashboard")}
         >
           <img
             loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/8eb521e107e1aff25842d6dea993c2003f69da71885118e8c8aa1666e3145ee3?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/2ee0597e81b2e9f974ef8a49ed55ce19a58e1c8805276e9d7496b2cf55f7ca21?placeholderIfAbsent=true&apiKey=70c5f0c08e304d4b9d8f08ceb2f4dd6f"
             className="object-contain shrink-0 aspect-[0.72] w-[13px] text-white"
           />
           <button className="my-auto bg-transparent text-white border-none cursor-pointer">
@@ -149,11 +153,26 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* Task Button */}
+        <div
+          className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300"
+          onClick={() => handleButtonClick("task-detail", "/task-detail")}
+        >
+          <img
+            loading="lazy"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/8eb521e107e1aff25842d6dea993c2003f69da71885118e8c8aa1666e3145ee3?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
+            className="object-contain shrink-0 aspect-[0.83] w-[15px]"
+          />
+          <button className="my-auto bg-transparent text-white border-none cursor-pointer">
+            Task
+          </button>
+        </div>
+
         {/* Bottom Image */}
         <img
           loading="lazy"
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/026ff0ce6178839c06ee43ae4f8850214c24c1fb07725312719f6a47825f4681"
-          className="object-contain self-stretch mb-0 w-full aspect-[166.67] mt-28"
+          className="object-contain self-stretch mb-0 w-full aspect-[166.67] mt-12"
         />
 
         {/* Logout Section */}

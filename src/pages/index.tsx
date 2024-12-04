@@ -3,8 +3,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 
 export default function Home() {
   return (
-    <ProtectedRoute>
+    // <ProtectedRoute>
       <Dashboard />
-    </ProtectedRoute>
+    // </ProtectedRoute>
   );
 }
