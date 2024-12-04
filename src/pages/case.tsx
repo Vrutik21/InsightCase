@@ -10,7 +10,7 @@ import Paper from "@mui/material/Paper";
 import Modal from "@mui/material/Modal";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import AddIcon from '@mui/icons-material/Add';
+import AddIcon from "@mui/icons-material/Add";
 import {
   TextField,
   MenuItem,
@@ -25,6 +25,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Link from "next/link";
 import axios from "axios";
 import router from "next/router";
+import ProtectedRoute from "@/components/ProtectedRoute";
 // import { TableDataRow } from "@/types"; // Import the type interface
 
 interface TableDataRow {
@@ -64,17 +65,21 @@ export default function CaseTable() {
   const [clients, setClients] = useState<any[]>([]);
   const [staff, setStaff] = useState<any[]>([]);
   const [services, setServices] = useState<any[]>([]);
-  const [filteredTableData, setFilteredTableData] = useState<TableDataRow[]>([]);
+  const [filteredTableData, setFilteredTableData] = useState<TableDataRow[]>(
+    []
+  );
   const [selectedFilter, setSelectedFilter] = useState<string>("All");
   const [caseTasks, setCaseTasks] = useState<any[]>([]);
   const [isAddTaskModalOpen, setIsAddTaskModalOpen] = useState(false);
-  const [selectedCaseForTask, setSelectedCaseForTask] = useState<string | null>(null);
+  const [selectedCaseForTask, setSelectedCaseForTask] = useState<string | null>(
+    null
+  );
   const [taskStaff, setTaskStaff] = useState<any[]>([]);
   const [taskFormData, setTaskFormData] = useState({
-    case_id: '',
-    staff_id: '',
-    description: '',
-    due_date: '',
+    case_id: "",
+    staff_id: "",
+    description: "",
+    due_date: "",
   });
 
   const [confirmDelete, setConfirmDelete] = useState<{
@@ -83,14 +88,14 @@ export default function CaseTable() {
   }>({ isOpen: false, caseId: null });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editCaseData, setEditCaseData] = useState({
-    id: '',
-    client_id: '',
-    case_manager_id: '',
-    staff_id: '',
-    service_id: '',
-    region: '',
-    status: '',
-    start_at: '',
+    id: "",
+    client_id: "",
+    case_manager_id: "",
+    staff_id: "",
+    service_id: "",
+    region: "",
+    status: "",
+    start_at: "",
   });
 
   // Form data state
@@ -108,8 +113,11 @@ export default function CaseTable() {
     try {
       // Fetch cases with optional status filter
       const caseResponse = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/case${status ? `?status=${status}` : ''}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/case${
+          status ? `?status=${status}` : ""
+        }`,
         {
+          withCredentials: true,
           headers: {
             "ngrok-skip-browser-warning": "true",
           },
@@ -123,12 +131,11 @@ export default function CaseTable() {
       setFilteredTableData([]); // Clear filtered data as well
     }
   };
-  
 
   // New function to handle status filtering
   const handleStatusFilter = (status: string) => {
     setSelectedFilter(status);
-    
+
     if (status === "All") {
       fetchData(); // Fetch all cases
     } else {
@@ -139,44 +146,50 @@ export default function CaseTable() {
   const fetchDropdownData = async () => {
     try {
       // Double-check exact endpoint paths
-      const [clientsResponse, staffResponse, servicesResponse] = 
+      const [clientsResponse, staffResponse, servicesResponse] =
         await Promise.all([
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/client`, {  // Note: plural 'clients'
-            headers: { 
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/client`, {
+            withCredentials: true,
+            // Note: plural 'clients'
+            headers: {
               "ngrok-skip-browser-warning": "true",
-              "Content-Type": "application/json"
-            }
+              "Content-Type": "application/json",
+            },
           }),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user`, {  // Note: plural 'staffs'
-            headers: { 
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
+            withCredentials: true,
+            // Note: plural 'staffs'
+            headers: {
               "ngrok-skip-browser-warning": "true",
-              "Content-Type": "application/json"
-            }
+              "Content-Type": "application/json",
+            },
           }),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/service`, {  // Note: plural 'services'
-            headers: { 
+          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/service`, {
+            withCredentials: true,
+            // Note: plural 'services'
+            headers: {
               "ngrok-skip-browser-warning": "true",
-              "Content-Type": "application/json"
-            }
-          })
+              "Content-Type": "application/json",
+            },
+          }),
         ]);
-  
+
       // Process responses
       setClients(clientsResponse.data || []);
       setStaff(staffResponse.data || []);
       setServices(servicesResponse.data || []);
-  
+
       // Open the modal
       setIsModalOpen(true);
     } catch (error) {
       console.error("Dropdown Data Fetch Error:", error.response?.config?.url);
       console.error("Full Error:", error);
-  
+
       // More specific error message
       alert(`Failed to load dropdown data. 
         Endpoint: ${error.response?.config?.url}
         Status: ${error.response?.status}`);
-      
+
       // Fallback to empty arrays
       setClients([]);
       setStaff([]);
@@ -187,20 +200,23 @@ export default function CaseTable() {
   const fetchCaseTasks = async (caseId: string) => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/task`, 
+        `${process.env.NEXT_PUBLIC_API_URL}/task`,
         {
           params: {
-            case_id: caseId // Correctly filter tasks by case ID
+            case_id: caseId, // Correctly filter tasks by case ID
           },
+          withCredentials: true,
           headers: {
             "ngrok-skip-browser-warning": "true",
           },
         }
       );
-      
+
       // Filter tasks to ensure only tasks for this specific case are displayed
-      const filteredTasks = response.data.filter(task => task.case_id === caseId);
-      
+      const filteredTasks = response.data.filter(
+        (task) => task.case_id === caseId
+      );
+
       setCaseTasks(filteredTasks);
     } catch (error) {
       console.error("Error fetching case tasks:", error);
@@ -212,18 +228,19 @@ export default function CaseTable() {
     try {
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/task/${taskId}`,
-        { 
-          status: completed ? 'COMPLETED' : 'PENDING',
-          is_complete: completed  // Changed from is_completed to is_complete
+        {
+          status: completed ? "COMPLETED" : "PENDING",
+          is_complete: completed, // Changed from is_completed to is_complete
         },
         {
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
           },
         }
       );
-  
+
       // Refresh tasks after update
       fetchCaseTasks(editCaseData.id);
     } catch (error) {
@@ -231,17 +248,18 @@ export default function CaseTable() {
       alert("Failed to update task status");
     }
   };
-  
+
   // function to fetch staff for task assignment
   const fetchTaskStaff = async () => {
     try {
       const staffResponse = await axios.get(
-        'https://b352-184-148-17-9.ngrok-free.app/user', 
+        `${process.env.NEXT_PUBLIC_API_URL}/user`,
         {
-          headers: { 
+          withCredentials: true,
+          headers: {
             "ngrok-skip-browser-warning": "true",
-            "Content-Type": "application/json"
-          }
+            "Content-Type": "application/json",
+          },
         }
       );
       // Remove the filter that was previously hiding some users
@@ -260,12 +278,14 @@ export default function CaseTable() {
   };
 
   // Handle task form input changes
-  const handleTaskInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleTaskInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = event.target;
-    setTaskFormData(prevData => ({
+    setTaskFormData((prevData) => ({
       ...prevData,
       [name]: value,
-      case_id: selectedCaseForTask || '',
+      case_id: selectedCaseForTask || "",
     }));
   };
 
@@ -277,6 +297,7 @@ export default function CaseTable() {
         `${process.env.NEXT_PUBLIC_API_URL}/task`,
         taskFormData,
         {
+          withCredentials: true,
           headers: {
             "Content-Type": "application/json",
             "ngrok-skip-browser-warning": "true",
@@ -287,13 +308,13 @@ export default function CaseTable() {
       // Reset form and close modal
       setIsAddTaskModalOpen(false);
       setTaskFormData({
-        case_id: '',
-        staff_id: '',
-        description: '',
-        due_date: '',
+        case_id: "",
+        staff_id: "",
+        description: "",
+        due_date: "",
       });
       setSelectedCaseForTask(null);
-      fetchData()
+      fetchData();
 
       // Optionally, you might want to refresh case data or show a success message
     } catch (error) {
@@ -322,7 +343,6 @@ export default function CaseTable() {
     });
   };
 
-  
   // Fetch data for table and dropdowns
   useEffect(() => {
     fetchData(); // This will fetch all cases
@@ -374,34 +394,35 @@ export default function CaseTable() {
 
   // Delete case handler
   const handleDeleteConfirmation = (caseId: string) => {
-    setConfirmDelete({ 
-      isOpen: true, 
-      caseId: caseId 
+    setConfirmDelete({
+      isOpen: true,
+      caseId: caseId,
     });
   };
 
   const handleDeleteCase = async () => {
     const caseId = confirmDelete.caseId;
     if (!caseId) return;
-    
+
     try {
-      await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/case/${caseId}`,
-        {
-          headers: {
-            "ngrok-skip-browser-warning": "true",
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-  
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/case/${caseId}`, {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
       // Refresh data after successful deletion
       fetchData();
       setConfirmDelete({ isOpen: false, caseId: null });
     } catch (error) {
       console.error("Error deleting case:", error);
-      alert(`Failed to delete case: ${error.response?.data?.message || error.message}`);
+      alert(
+        `Failed to delete case: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 
@@ -415,43 +436,46 @@ export default function CaseTable() {
       service_id: row.service_id,
       region: row.region,
       status: row.status,
-      start_at: row.start_at.split('T')[0],
+      start_at: row.start_at.split("T")[0],
     });
-    
+
     // Fetch tasks for this case
     fetchCaseTasks(row.id);
-    
+
     setIsEditModalOpen(true);
   };
 
-const handleEditInputChange = (event: React.ChangeEvent<HTMLInputElement | { value: unknown }>) => {
-  const { name, value } = event.target;
-  setEditCaseData({ ...editCaseData, [name]: value });
-};
+  const handleEditInputChange = (
+    event: React.ChangeEvent<HTMLInputElement | { value: unknown }>
+  ) => {
+    const { name, value } = event.target;
+    setEditCaseData({ ...editCaseData, [name]: value });
+  };
 
-const handleEditSubmit = async (event: React.FormEvent) => {
-  event.preventDefault();
-  try {
-    await axios.patch(
-      `${process.env.NEXT_PUBLIC_API_URL}/case/${editCaseData.id}`,
-      {
-        status: editCaseData.status,
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "ngrok-skip-browser-warning": "true",
+  const handleEditSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    try {
+      await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/case/${editCaseData.id}`,
+        {
+          status: editCaseData.status,
         },
-      }
-    );
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
 
-    fetchData(); // Refresh data
-    setIsEditModalOpen(false);
-  } catch (error) {
-    console.error("Error updating case:", error);
-    alert("Failed to update case");
-  }
-};
+      fetchData(); // Refresh data
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error("Error updating case:", error);
+      alert("Failed to update case");
+    }
+  };
 
   return (
     <div>
@@ -508,7 +532,7 @@ const handleEditSubmit = async (event: React.FormEvent) => {
                           src="https://cdn.builder.io/api/v1/image/assets/TEMP/e9a3281f6ba912ddd2b10f18e5aeaab0b6670f9d9a34254e2506f9230e109cb4?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
                           className="object-contain shrink-0 self-stretch my-auto w-5 aspect-square"
                         />
-                        <select 
+                        <select
                           value={selectedFilter}
                           onChange={(e) => handleStatusFilter(e.target.value)}
                           className="bg-custom-light-indigo text-white outline-none"
@@ -534,7 +558,6 @@ const handleEditSubmit = async (event: React.FormEvent) => {
                       {[
                         "#",
                         "Case Manager Name",
-                        "Staff Name",
                         "Service Name",
                         "Client Name",
                         "Region",
@@ -545,7 +568,10 @@ const handleEditSubmit = async (event: React.FormEvent) => {
                       ].map((header, index) => (
                         <TableCell
                           key={index}
-                          sx={{ color: "white", backgroundColor: "#21222d" }}
+                          sx={{
+                            color: "white",
+                            backgroundColor: "#21222d",
+                          }}
                         >
                           {header}
                         </TableCell>
@@ -553,67 +579,68 @@ const handleEditSubmit = async (event: React.FormEvent) => {
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {(Array.isArray(tableData) ? tableData : []).map((row, index) => (
-                      <TableRow
-                        key={row.id || index}
-                        sx={{ backgroundColor: "#333443" }}
-                      >
-                        <TableCell sx={{ color: "white" }}>
-                          {index + 1}
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          {row.case_manager?.name || "N/A"}
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          {row.staff?.name || "N/A"}
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          {row.service?.name || "N/A"}
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          {row.client?.first_name + " " + row.client?.last_name || "N/A"}
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          {row.region}
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          {row.status}
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          {new Date(row.start_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          <Link
-                            href={`/task-detail?caseId=${row.id}`}
-                            className="underline text-blue-400"
-                          >
-                            {row._count?.tasks || 0} Tasks
-                          </Link>
-                        </TableCell>
-                        <TableCell sx={{ color: "white" }}>
-                          <div className="flex gap-2">
-                            <IconButton 
-                              onClick={() => handleEditCase(row)}
-                              sx={{ color: "white" }}
+                    {(Array.isArray(tableData) ? tableData : []).map(
+                      (row, index) => (
+                        <TableRow
+                          key={row.id || index}
+                          sx={{ backgroundColor: "#333443" }}
+                        >
+                          <TableCell sx={{ color: "white" }}>
+                            {index + 1}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {row.case_manager?.name || "N/A"}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {row.service?.name || "N/A"}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {row.client?.first_name +
+                              " " +
+                              row.client?.last_name || "N/A"}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {row.region}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {row.status}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            {new Date(row.start_at).toLocaleDateString()}
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            <Link
+                              href={`/task-detail?caseId=${row.id}`}
+                              className="underline text-blue-400"
                             >
-                              <EditIcon />
-                            </IconButton>
-                            <IconButton 
-                              onClick={() => handleDeleteConfirmation(row.id)}
-                              sx={{ color: "white" }}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                            <IconButton 
-                              onClick={() => handleOpenAddTaskModal(row.id)}
-                              sx={{ color: "white" }}
-                            >
-                              <AddIcon /> 
-                            </IconButton>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                              {row._count?.tasks || 0} Tasks
+                            </Link>
+                          </TableCell>
+                          <TableCell sx={{ color: "white" }}>
+                            <div className="flex gap-2">
+                              <IconButton
+                                onClick={() => handleOpenAddTaskModal(row.id)}
+                                sx={{ color: "white" }}
+                              >
+                                <AddIcon />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => handleEditCase(row)}
+                                sx={{ color: "white" }}
+                              >
+                                <EditIcon />
+                              </IconButton>
+                              <IconButton
+                                onClick={() => handleDeleteConfirmation(row.id)}
+                                sx={{ color: "white" }}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )
+                    )}
                   </TableBody>
                 </Table>
               </TableContainer>
@@ -790,29 +817,41 @@ const handleEditSubmit = async (event: React.FormEvent) => {
                 <div>
                   <h2 className="text-xl text-white mb-4">Tasks</h2>
                   {caseTasks.length === 0 ? (
-                    <p className="text-gray-400">No tasks found for this case.</p>
+                    <p className="text-gray-400">
+                      No tasks found for this case.
+                    </p>
                   ) : (
                     <div className="space-y-2">
                       {caseTasks.map((task) => (
-                        <div 
-                          key={task.id} 
+                        <div
+                          key={task.id}
                           className="flex items-center justify-between bg-gray-700 p-3 rounded-md"
                         >
                           <div className="flex items-center">
                             <input
                               type="checkbox"
-                              checked={task.is_complete}  // Changed from task.is_completed to task.is_complete
-                              onChange={(e) => handleTaskStatusChange(task.id, e.target.checked)}
+                              checked={task.is_complete} // Changed from task.is_completed to task.is_complete
+                              onChange={(e) =>
+                                handleTaskStatusChange(
+                                  task.id,
+                                  e.target.checked
+                                )
+                              }
                               className="mr-3 form-checkbox text-yellow-500"
                             />
                             <div className="flex flex-col">
-                              <span className="text-white">{task.description}</span>
+                              <span className="text-white">
+                                {task.description}
+                              </span>
                               <span className="text-sm text-gray-400">
-                                Due: {new Date(task.due_date).toLocaleDateString()}
+                                Due:{" "}
+                                {new Date(task.due_date).toLocaleDateString()}
                               </span>
                             </div>
                           </div>
-                          <span className="text-gray-400">{task.is_complete ? 'Completed' : 'Pending'}</span>
+                          <span className="text-gray-400">
+                            {task.is_complete ? "Completed" : "Pending"}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -837,36 +876,41 @@ const handleEditSubmit = async (event: React.FormEvent) => {
             </div>
           </div>
         </Modal>
+        {/* Modal for delete case*/}
         <Modal
           open={confirmDelete.isOpen}
           onClose={() => setConfirmDelete({ isOpen: false, caseId: null })}
         >
-          <Box sx={{
-            position: "absolute" as const,
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "#21222d",
-            borderRadius: "12px",
-            boxShadow: 24,
-            p: 4,
-            color: "white",
-            textAlign: "center"
-          }}>
+          <Box
+            sx={{
+              position: "absolute" as const,
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: 400,
+              bgcolor: "#21222d",
+              borderRadius: "12px",
+              boxShadow: 24,
+              p: 4,
+              color: "white",
+              textAlign: "center",
+            }}
+          >
             <h2 className="text-xl mb-4">Confirm Delete</h2>
             <p className="mb-4">Are you sure you want to delete this case?</p>
             <div className="flex justify-center gap-4">
-              <Button 
-                variant="contained" 
-                color="error" 
+              <Button
+                variant="contained"
+                color="error"
                 onClick={handleDeleteCase}
               >
                 Delete
               </Button>
-              <Button 
-                variant="outlined" 
-                onClick={() => setConfirmDelete({ isOpen: false, caseId: null })}
+              <Button
+                variant="outlined"
+                onClick={() =>
+                  setConfirmDelete({ isOpen: false, caseId: null })
+                }
                 sx={{ color: "white", borderColor: "white" }}
               >
                 Cancel
@@ -875,7 +919,10 @@ const handleEditSubmit = async (event: React.FormEvent) => {
           </Box>
         </Modal>
 
-        <Modal open={isAddTaskModalOpen} onClose={() => setIsAddTaskModalOpen(false)}>
+        <Modal
+          open={isAddTaskModalOpen}
+          onClose={() => setIsAddTaskModalOpen(false)}
+        >
           <div className="flex justify-center items-center min-h-screen bg-opacity-60 bg-gray-900">
             <form
               onSubmit={handleTaskFormSubmit}
@@ -924,7 +971,9 @@ const handleEditSubmit = async (event: React.FormEvent) => {
                 />
 
                 <FormControl fullWidth margin="normal">
-                  <InputLabel className="text-gray-300">Assigned Staff</InputLabel>
+                  <InputLabel className="text-gray-300">
+                    Assigned Staff
+                  </InputLabel>
                   <Select
                     name="staff_id"
                     value={taskFormData.staff_id}

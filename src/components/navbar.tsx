@@ -48,13 +48,13 @@ export default function Navbar() {
       case "case":
         topValue = "261px";
         break;
-      case "client":
+      case "task":
         topValue = "350px";
         break;
-      case "service":
+      case "client":
         topValue = "440px";
         break;
-      case "task":
+      case "service":
         topValue = "529px";
         break;
       default:
@@ -123,6 +123,21 @@ export default function Navbar() {
           </button>
         </div>
 
+        {/* Task Button */}
+        <div
+          className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300"
+          onClick={() => handleButtonClick("task", "/task-detail")}
+        >
+          <img
+            loading="lazy"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/8bd3325695840cd0c09ac5ce1c32fa6fe5eddbb2fde084b1ae1e1b60ac762291"
+            className="object-contain shrink-0 aspect-[0.83] w-[15px]"
+          />
+          <button className="my-auto bg-transparent text-white border-none cursor-pointer">
+            Task
+          </button>
+        </div>
+
         {/* Client Details Button */}
         <div
           className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300"
@@ -150,21 +165,6 @@ export default function Navbar() {
           />
           <button className="my-auto bg-transparent text-white border-none cursor-pointer">
             Service
-          </button>
-        </div>
-
-        {/* Task Button */}
-        <div
-          className="flex relative gap-2.5 mt-16 ml-7 text-base font-semibold whitespace-nowrap text-zinc-300"
-          onClick={() => handleButtonClick("task-detail", "/task-detail")}
-        >
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/8eb521e107e1aff25842d6dea993c2003f69da71885118e8c8aa1666e3145ee3?placeholderIfAbsent=true&apiKey=877b457759d54d259ca44608a719ca2c"
-            className="object-contain shrink-0 aspect-[0.83] w-[15px]"
-          />
-          <button className="my-auto bg-transparent text-white border-none cursor-pointer">
-            Task
           </button>
         </div>
 
