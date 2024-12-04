@@ -1,4 +1,15 @@
-import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { CaseService } from './case.service';
 import { CreateCaseDto, UpdateCaseDto } from './dto/case.dto';
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -47,11 +58,6 @@ export class CaseController {
     return await this.caseService.updateCase(caseId, dto, req);
   }
 
-  @Get('list')
-  testTask(@Req() req: Request) {
-    return this.caseService.testTasks(req);
-  }
-
   @Get('events')
   async getCalendarEvents(@Req() req: Request) {
     try {
@@ -63,8 +69,9 @@ export class CaseController {
       };
     }
   }
-  // @Get('tasks')
-  // createToDoTask(@Req() req: Request) {
-  //   return this.caseService.createToDoTask(req);
-  // }
+
+  @Delete(':id')
+  async deleteCase(@Param('id') id: string, @Req() req: Request) {
+    return this.caseService.deleteCase(id, req);
+  }
 }

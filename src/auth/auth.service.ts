@@ -74,8 +74,6 @@ export class AuthService {
       }),
     };
 
-    console.log(tokenRequest, 'tokenRequest');
-
     // Code is received in the URL from Redirection URI. MSAL then handles the exchange of code for token.
     const response = await this.msalClient.acquireTokenByCode(tokenRequest);
 

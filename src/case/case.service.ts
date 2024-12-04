@@ -140,6 +140,13 @@ export class CaseService {
       // Retrieve tasks from the database to get their IDs
       const createdTasks = await this.prisma.task.findMany({
         where: { case_id: newCase.id },
+        include: {
+          case: {
+            include: {
+              client: true,
+            },
+          },
+        },
       });
 
       const access_token = await this.graphService.getAccessToken(req);
@@ -147,7 +154,7 @@ export class CaseService {
       // Create a To-Do list for the staff
       const toDoListId = await this.graphService.createToDoList(
         access_token,
-        `Tasks for Client ${client.first_name} ${client.last_name}`,
+        `Tasks for Client - ${client.first_name} ${client.last_name}`,
       );
 
       // Integrate tasks with Microsoft To-Do and Calendar
@@ -160,7 +167,16 @@ export class CaseService {
         );
 
         const calendarEventId = await this.graphService.addEventToCalendar(access_token, {
-          subject: task.description,
+          subject: `${task.description}`,
+          body: {
+            contentType: 'HTML',
+            content:
+              task.description +
+                ' for client - ' +
+                task.case.client.first_name +
+                ' ' +
+                task.case.client.last_name || 'No description available',
+          },
           start: {
             dateTime: task.due_date.toISOString(),
             timeZone: 'UTC',
@@ -271,48 +287,6 @@ export class CaseService {
     }
   }
 
-  async testTasks(req: Request) {
-    try {
-      const accessToken = await this.graphService.getAccessToken(req);
-      const start_date = new Date('2024-11-7');
-      const due_date = new Date(start_date.getTime() + 3 * 24 * 60 * 60 * 1000);
-
-      if (!accessToken) {
-        throw new UnauthorizedException('User not logged in');
-      }
-
-      return await this.createToDoTaskList('Intake interview', due_date, accessToken);
-      // return await axios.get('https://graph.microsoft.com/v1.0/me/todo/lists', {
-      //   headers: {
-      //     Authorization: `Bearer ${accessToken}`,
-      //   },
-      // });
-    } catch (err) {
-      prismaError(err);
-    }
-  }
-
-  // Helper function to create a Microsoft To Do task
-  private async createToDoTaskList(title: string, dueDate: Date, accessToken: string) {
-    try {
-      // const staff_id = 'dad674a7-4491-48ca-b4ae-68f13c384988';
-      const userEndpoint = `https://graph.microsoft.com/v1.0/me/todo/lists`;
-      await axios.post(
-        userEndpoint,
-        {
-          displayName: 'List created from app',
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        },
-      );
-    } catch (err) {
-      console.error('Error creating Microsoft To Do task:', err);
-    }
-  }
-
   async fetchAndFormatCalendarEvents(req: Request): Promise<any[]> {
     const access_token = await this.graphService.getAccessToken(req);
     const endpoint = 'https://graph.microsoft.com/v1.0/me/events';
@@ -342,55 +316,68 @@ export class CaseService {
     }
   }
 
-  // async createToDoTask(
-  //   // task_id: string,
-  //   // title: string,
-  //   // start_date: Date,
-  //   // due_date: Date,
-  //   req: Request,
-  // ) {
-  //   try {
-  //     const access_token = await this.graphService.getAccessToken(req);
-  //     const list_id =
-  //       'AQMkADAwATMwMAExLTg3MzktOWJlOC0wMAItMDAKAC4AAANZo7BSXqcOTIHYAq0AyHgNAQCh4SnJem9eS48ve9VH83knAAACamYAAAA=';
-  //     const endpoint = `${appConfig.GRAPH_API_ROOT_URL}/me/todo/lists/${list_id}/tasks`;
+  async deleteCase(caseId: string, req: Request) {
+    try {
+      // Step 1: Retrieve the case and its tasks
+      const caseData = await this.prisma.case.findUnique({
+        where: { id: caseId },
+        include: { tasks: true },
+      });
 
-  //     const start_date = new Date('2024-11-15');
-  //     const due_date = new Date(start_date.getTime() + 3 * 24 * 60 * 60 * 1000);
+      if (!caseData) {
+        throw new NotFoundException('Case not found');
+      }
 
-  //     if (!access_token) {
-  //       throw new UnauthorizedException('User not logged in');
-  //     }
+      const access_token = await this.graphService.getAccessToken(req);
 
-  //     await axios.post(
-  //       endpoint,
-  //       {
-  //         title: 'Intake interview',
-  //         // dueDateTime: due_date,
-  //         // status: 'notStarted',
-  //         // startDateTime: start_date,
-  //       },
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${access_token}`,
-  //           'Content-Type': 'application/json',
-  //         },
-  //       },
-  //     );
+      // Step 2: Delete the To-Do list (if it exists)
+      const todoListId = caseData.tasks[0]?.microsoft_list_id; // Assuming all tasks belong to the same list
+      if (todoListId) {
+        const todoEndpoint = `https://graph.microsoft.com/v1.0/me/todo/lists/${todoListId}`;
+        try {
+          await axios.delete(todoEndpoint, {
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          });
+        } catch (err) {
+          console.error(
+            `Failed to delete Microsoft To-Do list with ID ${todoListId}: ${err.message}`,
+          );
+        }
+      }
 
-  //     const data = await axios.get(
-  //       `${appConfig.GRAPH_API_ROOT_URL}/me/todo/lists/${list_id}/tasks`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${access_token}`,
-  //           'Content-Type': 'application/json',
-  //         },
-  //       },
-  //     );
+      // Step 3: Delete associated events from Microsoft Calendar
+      for (const task of caseData.tasks) {
+        if (task.microsoft_calendar_event_id) {
+          const calendarEndpoint = `https://graph.microsoft.com/v1.0/me/calendar/events/${task.microsoft_calendar_event_id}`;
+          try {
+            await axios.delete(calendarEndpoint, {
+              headers: {
+                Authorization: `Bearer ${access_token}`,
+              },
+            });
+          } catch (err) {
+            console.error(
+              `Failed to delete Microsoft Calendar event with ID ${task.microsoft_calendar_event_id}: ${err.message}`,
+            );
+          }
+        }
+      }
 
-  //     return data.data;
-  //   } catch (err) {
-  //     prismaError(err);
-  //   }
-  // }
+      // Step 4: Delete tasks from the database
+      await this.prisma.task.deleteMany({
+        where: { case_id: caseId },
+      });
+
+      // Step 5: Delete the case from the database
+      await this.prisma.case.delete({
+        where: { id: caseId },
+      });
+
+      return { message: 'Case and associated tasks deleted successfully' };
+    } catch (err) {
+      prismaError(err);
+    }
+  }
 }

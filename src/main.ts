@@ -19,7 +19,7 @@ import * as passport from 'passport';
 // }
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
   app.enableCors({
     origin: (origin, callback) => {
       console.log('Origin:', origin); // Log the origin of the incoming request

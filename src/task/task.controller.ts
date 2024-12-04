@@ -25,8 +25,8 @@ export class TaskController {
   }
 
   @Post()
-  createTask(@Body() dto: CreateTaskDto) {
-    return this.taskService.createTask(dto);
+  createTask(@Body() dto: CreateTaskDto, @Req() req: Request) {
+    return this.taskService.createTask(dto, req);
   }
 
   @Patch(':id')
@@ -42,7 +42,7 @@ export class TaskController {
   }
 
   @Delete(':id')
-  deleteTask(@Param('id') id: string) {
-    return this.taskService.deleteTask(id);
+  async deleteTask(@Param('id') id: string, @Req() req: Request) {
+    return this.taskService.deleteTask(id, req);
   }
 }
