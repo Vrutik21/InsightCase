@@ -40,6 +40,7 @@ interface TaskData {
 
 interface FormData {
   id?: string;
+  staff_id?: string;
   case_id: string;
   description: string;
   due_date: string;
@@ -54,6 +55,7 @@ interface CaseData {
 
 const initialFormData: FormData = {
   case_id: "",
+  staff_id: "",
   description: "",
   due_date: "",
   is_complete: false,
@@ -62,6 +64,7 @@ const initialFormData: FormData = {
 export default function TaskDetail() {
   const [taskData, setTaskData] = useState<TaskData[]>([]);
   const [cases, setCases] = useState<CaseData[]>([]);
+  const [staff, setStaff] = useState([]);
   const router = useRouter();
   const { caseId } = router.query;
 
@@ -107,8 +110,30 @@ export default function TaskDetail() {
     }
   };
 
+  const fetchStaff = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/user`,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "true",
+          },
+        }
+      );
+
+      // Filter staff by roles
+      const staffData = response.data;
+      setStaff(staffData);
+    } catch (error) {
+      console.error("Error fetching staff data:", error);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchStaff();
   }, [caseId]);
 
   const validateForm = (): boolean => {
@@ -178,17 +203,29 @@ export default function TaskDetail() {
     }
 
     try {
-      const selectedCase = cases.find((c) => c.id === formData.case_id);
-      const payload = {
-        case_id: formData.case_id,
-        staff_id: selectedCase?.staff_id || "", // Map staff_id from the selected case
-        description: formData.description,
-        due_date: new Date(formData.due_date).toISOString(),
-      };
+      const payload = isEditMode
+        ? {
+            staff_id: formData.staff_id,
+            description: formData.description,
+            due_date: new Date(formData.due_date).toISOString(),
+            is_complete: formData.is_complete,
+          }
+        : {
+            case_id: formData.case_id,
+            staff_id: formData.staff_id,
+            description: formData.description,
+            due_date: new Date(formData.due_date).toISOString(),
+          };
 
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/task`;
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/task${
+        isEditMode ? `/${formData.id}` : ""
+      }`;
+      const method = isEditMode ? "patch" : "post";
 
-      await axios.post(url, payload, {
+      await axios({
+        method,
+        url,
+        data: payload,
         withCredentials: true,
         headers: {
           "Content-Type": "application/json",
@@ -206,6 +243,18 @@ export default function TaskDetail() {
     }
   };
 
+  const handleInputChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | { name?: string; value: unknown }
+    >
+  ) => {
+    const { name, value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setFormData(initialFormData);
@@ -217,20 +266,6 @@ export default function TaskDetail() {
     setIsEditMode(false);
     setIsModalOpen(true);
     setFormErrors({});
-  };
-
-  const handleInputChange = (
-    event: React.ChangeEvent<
-      HTMLInputElement | { name?: string; value: unknown }
-    >
-  ) => {
-    const { name, value } = event.target;
-    if (name) {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
   };
 
   return (
@@ -417,7 +452,6 @@ export default function TaskDetail() {
       </div>
 
       {/* Modal Form */}
-      {/* Modal Form */}
       <Modal open={isModalOpen} onClose={handleCloseModal}>
         <div className="flex justify-center items-center min-h-screen bg-opacity-60 bg-gray-900">
           <form
@@ -432,29 +466,55 @@ export default function TaskDetail() {
             </IconButton>
 
             <div className="grid grid-cols-3 gap-4">
-              {/* Client Name (Case ID Dropdown) */}
-              <FormControl fullWidth>
-                <label className="block text-white mb-1">Select Case</label>
-                <Select
-                  name="case_id"
-                  value={formData.case_id}
-                  onChange={handleInputChange}
-                  error={!!formErrors.case_id}
-                  className="bg-custom-lighter-indigo rounded-md text-white"
-                >
-                  {cases.map((caseItem) => (
-                    <MenuItem key={caseItem.id} value={caseItem.id}>
-                      Client -{" "}
-                      {caseItem.client.first_name + caseItem.client.last_name}
-                    </MenuItem>
-                  ))}
-                </Select>
-                {formErrors.case_id && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formErrors.case_id}
-                  </p>
-                )}
-              </FormControl>
+              {/* Select Case Dropdown (Only for Create Mode) */}
+              {!isEditMode && (
+                <FormControl fullWidth>
+                  <label className="block text-white mb-1">Select Case</label>
+                  <Select
+                    name="case_id"
+                    value={formData.case_id}
+                    onChange={handleInputChange}
+                    error={!!formErrors.case_id}
+                    className="bg-custom-lighter-indigo rounded-md text-white"
+                  >
+                    {cases.map((caseItem) => (
+                      <MenuItem key={caseItem.id} value={caseItem.id}>
+                        Client -{" "}
+                        {caseItem.client.first_name + caseItem.client.last_name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {formErrors.case_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.case_id}
+                    </p>
+                  )}
+                </FormControl>
+              )}
+
+              {!isEditMode && (
+                <FormControl fullWidth>
+                  <label className="block text-white mb-1">Assign Staff</label>
+                  <Select
+                    name="staff_id"
+                    value={formData.staff_id}
+                    onChange={handleInputChange}
+                    error={!!formErrors.staff_id}
+                    className="bg-custom-lighter-indigo rounded-md text-white"
+                  >
+                    {staff.map((staffMember) => (
+                      <MenuItem key={staffMember.id} value={staffMember.id}>
+                        {staffMember.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  {formErrors.staff_id && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.staff_id}
+                    </p>
+                  )}
+                </FormControl>
+              )}
 
               {/* Description */}
               <FormControl fullWidth>
@@ -484,6 +544,27 @@ export default function TaskDetail() {
                   InputProps={{ style: { color: "white" } }}
                 />
               </FormControl>
+
+              {/* Status Checkbox (Only for Edit Mode) */}
+              {isEditMode && (
+                <FormControl fullWidth>
+                  <label className="block text-white mb-1">Task Status</label>
+                  <Box display="flex" alignItems="center" gap={2}>
+                    <label className="text-white">Completed:</label>
+                    <input
+                      type="checkbox"
+                      name="is_complete"
+                      checked={formData.is_complete}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          is_complete: e.target.checked,
+                        }))
+                      }
+                    />
+                  </Box>
+                </FormControl>
+              )}
             </div>
 
             {/* Submit Button */}
@@ -498,7 +579,7 @@ export default function TaskDetail() {
                 }}
                 className="bg-yellow gap-8 text-white font-semibold rounded-lg"
               >
-                Save
+                {isEditMode ? "Save" : "Create"}
               </Button>
             </div>
           </form>

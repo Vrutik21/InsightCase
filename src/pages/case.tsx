@@ -229,8 +229,7 @@ export default function CaseTable() {
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/task/${taskId}`,
         {
-          status: completed ? "COMPLETED" : "PENDING",
-          is_complete: completed, // Changed from is_completed to is_complete
+          is_complete: completed,
         },
         {
           withCredentials: true,
