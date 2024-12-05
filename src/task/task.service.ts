@@ -108,7 +108,7 @@ export class TaskService {
   }
 
   async updateTaskCompletionStatus(taskId: string, dto: UpdateTaskDto, req: Request) {
-    // Find the task
+    // Fetch the task details
     const task = await this.prisma.task.findUnique({
       where: { id: taskId },
       include: {
@@ -125,55 +125,69 @@ export class TaskService {
     }
 
     const accessToken = await this.graphService.getAccessToken(req);
+    let updatedTask: Task;
 
-    if (dto.is_complete) {
-      // If the task is marked as complete, delete the associated calendar event if it exists
+    // Handle completion status
+    if (dto?.is_complete === true || dto.description || dto.due_date) {
       if (task.microsoft_calendar_event_id) {
         await this.deleteMicrosoftCalendarEvent(task.microsoft_calendar_event_id, accessToken);
-
-        // Update the task in the database to remove the calendar event ID
         await this.prisma.task.update({
           where: { id: taskId },
           data: { microsoft_calendar_event_id: null },
         });
       }
-    } else {
-      // If the task is not complete, check if a calendar event exists
-      if (!task.microsoft_calendar_event_id) {
-        // Create a new calendar event
-        const eventDetails = this.constructCalendarEventDetails(task);
+
+      if (dto.is_complete === false) {
+        const eventDetails = this.constructCalendarEventDetails({
+          ...task,
+          description: dto.description || task.description,
+          due_date: dto.due_date || task.due_date,
+        });
         const eventId = await this.graphService.addEventToCalendar(accessToken, eventDetails);
 
-        // Update the task in the database with the new calendar event ID
         await this.prisma.task.update({
           where: { id: taskId },
           data: { microsoft_calendar_event_id: eventId },
         });
       }
-    }
-
-    let updatedTask: Task;
-
-    // Update the task's completion status in the local database
-    if (dto.is_complete === true) {
-      updatedTask = await this.prisma.task.update({
-        where: { id: taskId },
-        data: { is_complete: dto.is_complete, completed_at: new Date(Date.now()).toISOString() },
+    } else if (!task.microsoft_calendar_event_id) {
+      // Create a calendar event if not complete
+      const eventDetails = this.constructCalendarEventDetails({
+        ...task,
+        description: dto.description || task.description,
+        due_date: dto.due_date || task.due_date,
       });
-    } else {
-      updatedTask = await this.prisma.task.update({
+      const eventId = await this.graphService.addEventToCalendar(accessToken, eventDetails);
+
+      await this.prisma.task.update({
         where: { id: taskId },
-        data: { is_complete: dto.is_complete, completed_at: null },
+        data: { microsoft_calendar_event_id: eventId },
       });
     }
 
-    // Sync with Microsoft To-Do if required
+    // Update the task's details
+    updatedTask = await this.prisma.task.update({
+      where: { id: taskId },
+      data: {
+        is_complete: dto.is_complete,
+        completed_at: dto.is_complete ? new Date(Date.now()).toISOString() : null,
+        description: dto.description || task.description,
+        due_date: dto.due_date ? new Date(dto.due_date).toISOString() : task.due_date,
+      },
+    });
+
+    // Update Microsoft To-Do task if exists
     if (task.microsoft_todo_id) {
-      await this.updateMicrosoftToDoTask(
-        task.microsoft_list_id,
-        task.microsoft_todo_id,
-        dto.is_complete,
-        req,
+      await this.graphService.patchMicrosoftResource(
+        `https://graph.microsoft.com/v1.0/me/todo/lists/${task.microsoft_list_id}/tasks/${task.microsoft_todo_id}`,
+        {
+          title: dto.description || task.description,
+          dueDateTime: dto.due_date
+            ? { dateTime: new Date(dto.due_date).toISOString(), timeZone: 'UTC' }
+            : undefined,
+          status: dto.is_complete ? 'completed' : 'notStarted',
+        },
+        accessToken,
       );
     }
 
@@ -185,7 +199,8 @@ export class TaskService {
     await axios.post(
       endpoint,
       {
-        comment: 'This event is being canceled because the task has been marked as completed.', // Optional comment
+        comment:
+          'This event is being canceled because the task has been marked as completed or there are changes in the task',
       },
       {
         headers: {
