@@ -74,7 +74,7 @@ export default function Navbar() {
       justifyContent: "center",
       alignItems: "center",
       fontSize: "18px",
-      transition: "top 0.3s ease, background-color 0.3s ease", // Smooth animation for top and color
+      // transition: "top 0.3s ease, background-color 0.3s ease", // Smooth animation for top and color
     };
   };
 
@@ -89,7 +89,7 @@ export default function Navbar() {
           />
           <div>
             Insight <br />
-            Advantage
+            Case
           </div>
         </div>
 

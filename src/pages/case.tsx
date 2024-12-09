@@ -657,19 +657,19 @@ export default function CaseTable() {
               {/* Close button */}
               <IconButton
                 onClick={handleCloseModal}
-                className="absolute top-0 right-0 text-gray-400 hover:text-white"
+                className="absolute top-0 right-0 !text-white"
               >
                 <CloseIcon />
               </IconButton>
 
               <div className="grid grid-cols-2 gap-4">
                 <FormControl fullWidth margin="normal">
-                  <InputLabel className="text-gray-300">Client Name</InputLabel>
+                  <InputLabel className="!text-white">Client Name</InputLabel>
                   <Select
                     name="client_id"
                     value={formData.client_id}
                     onChange={handleInputChange}
-                    className="bg-gray-700 text-gray-300 rounded-md"
+                    className="bg-gray-700 !text-white rounded-md"
                   >
                     {clients.map((client) => (
                       <MenuItem key={client.id} value={client.id}>
@@ -680,12 +680,12 @@ export default function CaseTable() {
                 </FormControl>
 
                 <FormControl fullWidth margin="normal">
-                  <InputLabel className="text-gray-300">Staff</InputLabel>
+                  <InputLabel className="!text-white">Staff</InputLabel>
                   <Select
                     name="staff_id"
                     value={formData.staff_id}
                     onChange={handleInputChange}
-                    className="bg-gray-700 text-gray-300 rounded-md"
+                    className="bg-gray-700 !text-white rounded-md"
                   >
                     {staff
                       ?.filter((item) => item.name != "test")
@@ -698,12 +698,12 @@ export default function CaseTable() {
                 </FormControl>
 
                 <FormControl fullWidth margin="normal">
-                  <InputLabel className="text-gray-300">Service</InputLabel>
+                  <InputLabel className="!text-white">Service</InputLabel>
                   <Select
                     name="service_id"
                     value={formData.service_id}
                     onChange={handleInputChange}
-                    className="bg-gray-700 text-gray-300 rounded-md"
+                    className="bg-gray-700 !text-white rounded-md"
                   >
                     {services.map((service) => (
                       <MenuItem key={service.id} value={service.id}>
@@ -714,12 +714,12 @@ export default function CaseTable() {
                 </FormControl>
 
                 <FormControl fullWidth margin="normal">
-                  <InputLabel className="text-gray-300">Region</InputLabel>
+                  <InputLabel className="!text-white">Region</InputLabel>
                   <Select
                     name="region"
                     value={formData.region}
                     onChange={handleInputChange}
-                    className="bg-gray-700 text-gray-300 rounded-md"
+                    className="bg-gray-700 !text-white rounded-md"
                   >
                     {REGIONS.map((region) => (
                       <MenuItem key={region} value={region}>
@@ -730,12 +730,12 @@ export default function CaseTable() {
                 </FormControl>
 
                 <FormControl fullWidth margin="normal">
-                  <InputLabel className="text-gray-300">Status</InputLabel>
+                  <InputLabel className="!text-white">Status</InputLabel>
                   <Select
                     name="status"
                     value={formData.status}
                     onChange={handleInputChange}
-                    className="bg-gray-700 text-gray-300 rounded-md"
+                    className="bg-gray-700 !text-white rounded-md"
                   >
                     {STATUSES.map((status) => (
                       <MenuItem key={status} value={status}>
@@ -755,10 +755,10 @@ export default function CaseTable() {
                   onChange={handleInputChange}
                   InputLabelProps={{
                     shrink: true,
-                    className: "text-gray-300",
+                    className: "!text-white",
                   }}
                   InputProps={{
-                    className: "bg-gray-700 text-gray-300 rounded-md",
+                    className: "bg-gray-700 !text-white rounded-md",
                   }}
                 />
               </div>
@@ -786,7 +786,7 @@ export default function CaseTable() {
               {/* Close button */}
               <IconButton
                 onClick={() => setIsEditModalOpen(false)}
-                className="absolute top-0 right-0 text-gray-400 hover:text-white"
+                className="absolute top-0 right-0 !text-white"
               >
                 <CloseIcon />
               </IconButton>
@@ -794,14 +794,14 @@ export default function CaseTable() {
               <div className="grid gap-4">
                 {/* Case Status Section */}
                 <div className="mb-4">
-                  <h2 className="text-xl text-white mb-4">Edit Case Status</h2>
+                  <h2 className="text-xl !text-white mb-4">Edit Case Status</h2>
                   <FormControl fullWidth margin="normal">
-                    <InputLabel className="text-gray-300">Status</InputLabel>
+                    <InputLabel className="!text-white">Status</InputLabel>
                     <Select
                       name="status"
                       value={editCaseData.status}
                       onChange={handleEditInputChange}
-                      className="bg-gray-700 text-gray-300 rounded-md"
+                      className="bg-gray-700 !text-white rounded-md"
                     >
                       {STATUSES.map((status) => (
                         <MenuItem key={status} value={status}>
@@ -929,7 +929,7 @@ export default function CaseTable() {
             >
               <IconButton
                 onClick={() => setIsAddTaskModalOpen(false)}
-                className="absolute top-0 right-0 text-gray-400 hover:text-white"
+                className="absolute top-0 right-0 !text-white"
               >
                 <CloseIcon />
               </IconButton>
@@ -946,10 +946,10 @@ export default function CaseTable() {
                   value={taskFormData.description}
                   onChange={handleTaskInputChange}
                   InputLabelProps={{
-                    className: "text-gray-300",
+                    className: "!text-white",
                   }}
                   InputProps={{
-                    className: "bg-gray-700 text-gray-300 rounded-md",
+                    className: "bg-gray-700 !text-white rounded-md",
                   }}
                 />
 
@@ -962,22 +962,22 @@ export default function CaseTable() {
                   onChange={handleTaskInputChange}
                   InputLabelProps={{
                     shrink: true,
-                    className: "text-gray-300",
+                    className: "!text-white",
                   }}
                   InputProps={{
-                    className: "bg-gray-700 text-gray-300 rounded-md",
+                    className: "bg-gray-700 !text-white rounded-md",
                   }}
                 />
 
                 <FormControl fullWidth margin="normal">
-                  <InputLabel className="text-gray-300">
+                  <InputLabel className="!text-white">
                     Assigned Staff
                   </InputLabel>
                   <Select
                     name="staff_id"
                     value={taskFormData.staff_id}
                     onChange={handleTaskInputChange}
-                    className="bg-gray-700 text-gray-300 rounded-md"
+                    className="bg-gray-700 !text-white rounded-md"
                   >
                     {taskStaff.map((staffMember) => (
                       <MenuItem key={staffMember.id} value={staffMember.id}>

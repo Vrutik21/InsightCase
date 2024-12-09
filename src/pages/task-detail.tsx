@@ -17,6 +17,7 @@ import {
   FormControl,
   IconButton,
   Box,
+  InputLabel,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import EditIcon from "@mui/icons-material/Edit";
@@ -456,26 +457,28 @@ export default function TaskDetail() {
         <div className="flex justify-center items-center min-h-screen bg-opacity-60 bg-gray-900">
           <form
             onSubmit={handleFormSubmit}
-            className="relative bg-custom-light-indigo text-white p-8 rounded-lg shadow-lg max-w-3xl w-full"
+            className="relative bg-custom-light-indigo !text-white p-8 rounded-lg shadow-lg max-w-3xl w-full"
           >
             <IconButton
               onClick={handleCloseModal}
-              className="absolute top-0 right-2 text-white hover:text-white"
+              className="absolute top-0 right-2 !text-white"
             >
               <CloseIcon />
             </IconButton>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-4 mt-5">
               {/* Select Case Dropdown (Only for Create Mode) */}
               {!isEditMode && (
                 <FormControl fullWidth>
-                  <label className="block text-white mb-1">Select Case</label>
+                  <InputLabel className="block !text-white mb-1">
+                    Select Case
+                  </InputLabel>
                   <Select
                     name="case_id"
                     value={formData.case_id}
                     onChange={handleInputChange}
                     error={!!formErrors.case_id}
-                    className="bg-custom-lighter-indigo rounded-md text-white"
+                    className="bg-gray-700 !text-white rounded-md"
                   >
                     {cases.map((caseItem) => (
                       <MenuItem key={caseItem.id} value={caseItem.id}>
@@ -494,13 +497,15 @@ export default function TaskDetail() {
 
               {!isEditMode && (
                 <FormControl fullWidth>
-                  <label className="block text-white mb-1">Assign Staff</label>
+                  <InputLabel className="block !text-white mb-1">
+                    Assign Staff
+                  </InputLabel>
                   <Select
                     name="staff_id"
                     value={formData.staff_id}
                     onChange={handleInputChange}
                     error={!!formErrors.staff_id}
-                    className="bg-custom-lighter-indigo rounded-md text-white"
+                    className="bg-gray-700 !text-white rounded-md"
                   >
                     {staff.map((staffMember) => (
                       <MenuItem key={staffMember.id} value={staffMember.id}>
@@ -517,33 +522,53 @@ export default function TaskDetail() {
               )}
 
               {/* Description */}
-              <FormControl fullWidth>
-                <label className="block text-white mb-1">Description</label>
-                <TextField
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  error={!!formErrors.description}
-                  helperText={formErrors.description}
-                  className="bg-custom-lighter-indigo rounded-md"
-                  InputProps={{ style: { color: "white" } }}
-                />
-              </FormControl>
+              {/* <FormControl fullWidth> */}
+              {/* <InputLabel className="block text-white mb-1">
+                  Description
+                </InputLabel> */}
+              <TextField
+                fullWidth
+                name="description"
+                label="Description"
+                value={formData.description}
+                onChange={handleInputChange}
+                error={!!formErrors.description}
+                helperText={formErrors.description}
+                className="bg-gray-700 !text-white rounded-md"
+                InputLabelProps={{
+                  shrink: true,
+                  className: "!text-white",
+                }}
+                InputProps={{
+                  className: "bg-gray-700 !text-white rounded-md",
+                }}
+              />
+              {/* </FormControl> */}
 
               {/* Due Date */}
-              <FormControl fullWidth>
-                <label className="block text-white mb-1">Due Date</label>
-                <TextField
-                  name="due_date"
-                  type="date"
-                  value={formData.due_date}
-                  onChange={handleInputChange}
-                  error={!!formErrors.due_date}
-                  helperText={formErrors.due_date}
-                  className="bg-custom-lighter-indigo rounded-md"
-                  InputProps={{ style: { color: "white" } }}
-                />
-              </FormControl>
+              {/* <FormControl fullWidth>
+                <InputLabel className="block text-white mb-1">
+                  Due Date
+                </InputLabel> */}
+              <TextField
+                name="due_date"
+                label="Due Date"
+                type="date"
+                value={formData.due_date}
+                onChange={handleInputChange}
+                error={!!formErrors.due_date}
+                helperText={formErrors.due_date}
+                className="bg-custom-lighter-indigo rounded-md"
+                // InputProps={{ style: { color: "white" } }}
+                InputLabelProps={{
+                  shrink: true,
+                  className: "!text-white",
+                }}
+                InputProps={{
+                  className: "bg-gray-700 !text-white rounded-md",
+                }}
+              />
+              {/* </FormControl> */}
 
               {/* Status Checkbox (Only for Edit Mode) */}
               {isEditMode && (

@@ -442,7 +442,7 @@ export default function CaseTable() {
               >
                 <IconButton
                   onClick={handleCloseModal}
-                  className="absolute top-0 right-2 text-white hover:text-white"
+                  className="absolute top-0 right-2 !text-white"
                 >
                   <CloseIcon />
                 </IconButton>
@@ -461,7 +461,7 @@ export default function CaseTable() {
                       onChange={handleInputChange}
                       error={!!formErrors.reference_number}
                       helperText={formErrors.reference_number}
-                      className="bg-custom-lighter-indigo rounded-md"
+                      className="bg-gray-700 !text-white rounded-md"
                       InputProps={{ style: { color: "white" } }}
                     />
                   </FormControl>
@@ -478,7 +478,7 @@ export default function CaseTable() {
                       onChange={handleInputChange}
                       error={!!formErrors.referral_date}
                       helperText={formErrors.referral_date}
-                      className="bg-custom-lighter-indigo rounded-md"
+                      className="bg-gray-700 !text-white rounded-md"
                       InputProps={{ style: { color: "white" } }}
                     />
                   </FormControl>
@@ -493,7 +493,7 @@ export default function CaseTable() {
                       onChange={handleInputChange}
                       error={!!formErrors.first_name}
                       helperText={formErrors.first_name}
-                      className="bg-custom-lighter-indigo rounded-md"
+                      className="bg-gray-700 !text-white rounded-md"
                       InputProps={{ style: { color: "white" } }}
                     />
                   </FormControl>
@@ -508,7 +508,7 @@ export default function CaseTable() {
                       onChange={handleInputChange}
                       error={!!formErrors.last_name}
                       helperText={formErrors.last_name}
-                      className="bg-custom-lighter-indigo rounded-md"
+                      className="bg-gray-700 !text-white rounded-md"
                       InputProps={{ style: { color: "white" } }}
                     />
                   </FormControl>
@@ -525,7 +525,7 @@ export default function CaseTable() {
                       onChange={handleInputChange}
                       error={!!formErrors.dob}
                       helperText={formErrors.dob}
-                      className="bg-custom-lighter-indigo rounded-md"
+                      className="bg-gray-700 !text-white rounded-md"
                       InputProps={{ style: { color: "white" } }}
                     />
                   </FormControl>
@@ -540,7 +540,7 @@ export default function CaseTable() {
                       onChange={handleInputChange}
                       error={!!formErrors.email}
                       helperText={formErrors.email}
-                      className="bg-custom-lighter-indigo rounded-md"
+                      className="bg-gray-700 !text-white rounded-md"
                       InputProps={{ style: { color: "white" } }}
                     />
                   </FormControl>
@@ -555,7 +555,7 @@ export default function CaseTable() {
                       onChange={handleInputChange}
                       error={!!formErrors.phone}
                       helperText={formErrors.phone}
-                      className="bg-custom-lighter-indigo rounded-md"
+                      className="bg-gray-700 !text-white rounded-md"
                       InputProps={{ style: { color: "white" } }}
                     />
                   </FormControl>
@@ -570,23 +570,20 @@ export default function CaseTable() {
                       onChange={handleInputChange}
                       error={!!formErrors.address}
                       helperText={formErrors.address}
-                      className="bg-custom-lighter-indigo rounded-md"
+                      className="bg-gray-700 !text-white rounded-md"
                       InputProps={{ style: { color: "white" } }}
                     />
                   </FormControl>
 
-                  {/* Add other form fields similarly */}
-                  {/* ... */}
-
                   {/* Region */}
                   <FormControl fullWidth>
-                    <label className="block text-white mb-1">Region</label>
+                    <label className="block !text-white mb-1">Region</label>
                     <Select
                       name="region"
                       value={formData.region}
                       onChange={handleInputChange}
                       error={!!formErrors.region}
-                      className="bg-custom-lighter-indigo rounded-md text-white"
+                      className="bg-gray-700 !text-white rounded-md"
                     >
                       {REGIONS.map((region) => (
                         <MenuItem key={region} value={region}>
