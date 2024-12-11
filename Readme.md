@@ -30,7 +30,7 @@ InsightCase is a comprehensive **Case Management Tool** designed to streamline e
 ```
 InsightCase/
 ├── Frontend   # Contains the Next.js frontend app
-└── Backend    # Contains the NestJS backend app
+└── Backend    # Contains the Nest.js backend app
 ```
 
 ## Setup Instructions
